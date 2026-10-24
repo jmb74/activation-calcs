@@ -1,0 +1,92 @@
+*18 MeV proton
+*FLUKA 4-5.2
+*Activation of RaCl2 target
+*Version: 0.1
+TITLE
+RaCl2 Cyclotron Activation Study
+DEFAULTS                                                              PRECISIO
+BEAM          -0.018                         -0.25     -0.25          PROTON
+BEAMPOS          0.0       0.0      -1.0
+* Beam along +z, target front face z=0.
+GEOBEGIN                                                              COMBNAME
+    0    0          Target in Vacuum
+SPH bnyd       0 0 0 100
+SPH world      0 0 0 10
+RCC inner      0.0 0.0 0.0 0.0 0.0 0.32299 1
+RCC outer      0.0 0.0 0.0 0.0 0.0 0.41874 1.15875
+XYP front      0
+XYP layer1     0.005
+XYP layer2     0.305
+XYP layer3     0.31
+END
+BLKHOLE      5 +bnyd -world
+VACREG       5 +world -outer
+ALCASE       5 +inner -outer
+HAV1         5 -inner -layer1
+WAT          5 -inner +layer1 -layer2
+HAV2         5 -inner +layer2 -layer3
+RACL2        5 -inner +layer3
+END
+GEOEND
+* Havar alloy - density 8.30 g/cm3
+* Define additional elemental materials
+MATERIAL        27.0                8.90                              COBALT
+MATERIAL        24.0                7.19                              CHROMIUM
+MATERIAL        42.0               10.22                              MOLYBDEN
+MATERIAL        25.0                7.21                              MANGANES
+* Define Havar alloy
+MATERIAL                            8.30                              HAVAR
+* Composition by mass fraction
+COMPOUND     -0.4200    COBALT   -0.1950  CHROMIUM   -0.1270    NICKELHAVAR
+COMPOUND     -0.0270  TUNGSTEN   -0.0220  MOLYBDEN   -0.0160  MANGANESHAVAR
+COMPOUND     -0.0020    CARBON   -0.0005  BERYLLIU   -0.1905      IRONHAVAR
+* RaCl2 - density 4.9 g/cm3
+* Radium-226 and natural chlorine
+MATERIAL        88.0                5.50                         226.0RADIUM
+MATERIAL        17.0           2.9947E-3                              CHLORINE
+MATERIAL                            4.90                              RACL2
+* Stoichiometric composition: 1 Ra + 2 Cl
+COMPOUND         1.0    RADIUM       2.0  CHLORINE                    RACL2
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM    VACREG
+ASSIGNMA    ALUMINUM    ALCASE
+ASSIGNMA       HAVAR      HAV1
+ASSIGNMA       WATER       WAT
+ASSIGNMA       HAVAR      HAV2
+ASSIGNMA       HAVAR      HAV2
+* More complete residual-nucleus evaporation modeling.
+PHYSICS          3.0                                                  EVAPORAT
+PHYSICS          1.0                                                  COALESCE
+* 1 microA -> 6.241509E12 singly-charged protons per second.
+RADDECAY         1.0
+!@what.1=7*24*3600
+!@what.2=6.2415E12*40
+IRRPROFI      604800 2.4966E14
+* Indices: 1=EoI, 2=1h, 3=1d, 4=7d after irradiation.
+DCYTIMES         0.0    3600.0   86400.0  604800.0
+* RESNUCLE 3=all, 1=non-low-neutron, 2=low-neutron products.
+* 1.0 normalization = whole region, not per cm3.
+RESNUCLE         3.0     -21.0                        ALCASE       1.0RESCASE
+RESNUCLE         3.0     -22.0                         RACL2       1.0RESTGT
+RESNUCLE         3.0     -23.0                          HAV1       1.0RESHAV1
+RESNUCLE         3.0     -24.0                           WAT       1.0RESWAT
+RESNUCLE         3.0     -25.0                          HAV2       1.0RESHAV2
+DCYSCORE         1.0                       RESCASE   RESHAV2          RESNUCLE
+DCYSCORE         2.0                       RESCASE   RESHAV2          RESNUCLE
+DCYSCORE         3.0                       RESCASE   RESHAV2          RESNUCLE
+DCYSCORE         4.0                       RESCASE   RESHAV2          RESNUCLE
+RANDOMIZ         1.0
+USRBIN            12  ACTIVITY       -26     RACL2                    ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1 1.' '0,,,RESCA' 'SE       ACT                    USRBIN
+USRBIN            12  ACTIVITY       -26     RACL2                    ACT1
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2 1.' '0,,,RESCA' 'SE       ACT                    USRBIN
+USRBIN            12  ACTIVITY       -26     RACL2                    ACT2
+USRBIN        ALCASE                             1                     &
+DCYSCORE           3 1.' '0,,,RESCA' 'SE      ACT1                    USRBIN
+USRBIN            12  ACTIVITY       -26     RACL2                    ACT3
+USRBIN        ALCASE                             1                     &
+DCYSCORE           4 1.' '0,,,RESCA' 'SE      ACT3                    USRBIN
+START ,       0000.0
+STOP

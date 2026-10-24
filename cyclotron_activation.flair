@@ -1,0 +1,106 @@
+# flair project file
+Version: 300
+Mode: fluka
+Title: Cyclotron activation: Ni-64 production foil and Cu backing
+md5: b9a406ed889e089361d31ffce972660a
+Input:
+*18 MeV proton
+*FLUKA 4-5.2
+*Activation of RaCl2 target
+*Version: 0.1
+TITLE
+	RaCl2 Cyclotron Activation Study
+DEFAULTS PRECISIO
+BEAM PROTON -0.018,,, -0.25 -0.25
+BEAMPOS , 0.0 0.0 -1.0
+* Beam along +z, target front face z=0.
+GEOBEGIN COMBNAME
+	Target in Vacuum
+SPH bnyd 0 0 0 100
+SPH world 0 0 0 10
+RCC inner 0.0 0.0 0.0 0.0 0.0 0.32299 1
+RCC outer 0.0 0.0 0.0 0.0 0.0 0.41874 1.15875
+XYP front 0
+XYP layer1 0.005
+XYP layer2 0.305
+XYP layer3 0.31
+END
+REGION BLKHOLE 5
+	+bnyd -world
+REGION VACREG 5
+	+world -outer
+REGION ALCASE 5
+	+inner -outer
+REGION HAV1 5
+	-inner -layer1
+REGION WAT 5
+	-inner +layer1 -layer2
+REGION HAV2 5
+	-inner +layer2 -layer3
+REGION RACL2 5
+	-inner +layer3
+END
+GEOEND
+* Havar alloy - density 8.30 g/cm3
+* Define additional elemental materials
+MATERIAL COBALT 27.0,, 8.90
+MATERIAL CHROMIUM 24.0,, 7.19
+MATERIAL MOLYBDEN 42.0,, 10.22
+MATERIAL MANGANES 25.0,, 7.21
+* Define Havar alloy
+MATERIAL HAVAR,,, 8.30
+* Composition by mass fraction
+COMPOUND HAVAR -0.4200 COBALT -0.1950 CHROMIUM -0.1270 NICKEL -0.0270 TUNGSTEN -0.0220 \
+	 MOLYBDEN -0.0160 MANGANES -0.0020 CARBON -0.0005 BERYLLIU -0.1905 \
+	 IRON
+* RaCl2 - density 4.9 g/cm3
+* Radium-226 and natural chlorine
+MATERIAL RADIUM 88.0,, 5.50,,, 226.0
+MATERIAL CHLORINE 17.0,, 2.9947E-3
+MATERIAL RACL2,,, 4.90
+* Stoichiometric composition: 1 Ra + 2 Cl
+COMPOUND RACL2 1.0 RADIUM 2.0 CHLORINE
+ASSIGNMA , BLCKHOLE BLKHOLE
+ASSIGNMA , VACUUM VACREG
+ASSIGNMA , ALUMINUM ALCASE
+ASSIGNMA , HAVAR HAV1
+ASSIGNMA , WATER WAT
+ASSIGNMA , HAVAR HAV2
+ASSIGNMA , HAVAR HAV2
+* More complete residual-nucleus evaporation modeling.
+PHYSICS EVAPORAT 3.0
+PHYSICS COALESCE 1.0
+* 1 microA -> 6.241509E12 singly-charged protons per second.
+RADDECAY , 1.0
+IRRPROFI , =7*24*3600 =6.2415E12*40
+* Indices: 1=EoI, 2=1h, 3=1d, 4=7d after irradiation.
+DCYTIMES , 0.0 3600.0 86400.0 604800.0
+* RESNUCLE 3=all, 1=non-low-neutron, 2=low-neutron products.
+* 1.0 normalization = whole region, not per cm3.
+RESNUCLE RESCASE 3.0 -21.0,,, ALCASE 1.0
+RESNUCLE RESTGT 3.0 -22.0,,, RACL2 1.0
+RESNUCLE RESHAV1 3.0 -23.0,,, HAV1 1.0
+RESNUCLE RESWAT 3.0 -24.0,,, WAT 1.0
+RESNUCLE RESHAV2 3.0 -25.0,,, HAV2 1.0
+DCYSCORE RESNUCLE 1.0,,, RESCASE RESHAV2
+DCYSCORE RESNUCLE 2.0,,, RESCASE RESHAV2
+DCYSCORE RESNUCLE 3.0,,, RESCASE RESHAV2
+DCYSCORE RESNUCLE 4.0,,, RESCASE RESHAV2
+RANDOMIZ , 1.0
+USRBIN ACT 12 ACTIVITY -26 RACL2,,, ALCASE,,, 1
+DCYSCORE USRBIN 1 '1.' '0,,,' 'RESCA' 'SE' ACT
+USRBIN ACT1 12 ACTIVITY -26 RACL2,,, ALCASE,,, 1
+DCYSCORE USRBIN 2 '1.' '0,,,' 'RESCA' 'SE' ACT
+USRBIN ACT2 12 ACTIVITY -26 RACL2,,, ALCASE,,, 1
+DCYSCORE USRBIN 3 '1.' '0,,,' 'RESCA' 'SE' ACT1
+USRBIN ACT3 12 ACTIVITY -26 RACL2,,, ALCASE,,, 1
+DCYSCORE USRBIN 4 '1.' '0,,,' 'RESCA' 'SE' ACT3
+START , , 0000.0
+STOP
+EndInput
+
+Page: Input
+
+# Run information
+Run: <default>
+End
