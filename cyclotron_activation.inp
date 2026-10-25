@@ -21,11 +21,11 @@ XYP layer3     0.31
 END
 BLKHOLE      5 +bnyd -world
 VACREG       5 +world -outer
-ALCASE       5 +inner -outer
-HAV1         5 -inner -layer1
-WAT          5 -inner +layer1 -layer2
-HAV2         5 -inner +layer2 -layer3
-RACL2        5 -inner +layer3
+ALCASE       5 +outer -inner
+HAV1         5 +inner -layer1
+WAT          5 +inner +layer1 -layer2
+HAV2         5 +inner +layer2 -layer3
+RACL2        5 +inner +layer3
 END
 GEOEND
 * Havar alloy - density 8.30 g/cm3
@@ -53,7 +53,7 @@ ASSIGNMA    ALUMINUM    ALCASE
 ASSIGNMA       HAVAR      HAV1
 ASSIGNMA       WATER       WAT
 ASSIGNMA       HAVAR      HAV2
-ASSIGNMA       HAVAR      HAV2
+ASSIGNMA       RACL2     RACL2
 * More complete residual-nucleus evaporation modeling.
 PHYSICS          3.0                                                  EVAPORAT
 PHYSICS          1.0                                                  COALESCE
@@ -72,21 +72,18 @@ RESNUCLE         3.0     -23.0                          HAV1       1.0RESHAV1
 RESNUCLE         3.0     -24.0                           WAT       1.0RESWAT
 RESNUCLE         3.0     -25.0                          HAV2       1.0RESHAV2
 DCYSCORE         1.0                       RESCASE   RESHAV2          RESNUCLE
-DCYSCORE         2.0                       RESCASE   RESHAV2          RESNUCLE
-DCYSCORE         3.0                       RESCASE   RESHAV2          RESNUCLE
-DCYSCORE         4.0                       RESCASE   RESHAV2          RESNUCLE
 RANDOMIZ         1.0
-USRBIN            12  ACTIVITY       -26     RACL2                    ACT
+USRBIN             2  ACTIVITY       -26     RACL2                    ACT
 USRBIN        ALCASE                             1                     &
-DCYSCORE           1 1.' '0,,,RESCA' 'SE       ACT                    USRBIN
-USRBIN            12  ACTIVITY       -26     RACL2                    ACT1
+DCYSCORE         1.0                           ACT                    USRBIN
+USRBIN             2  ACTIVITY       -27     RACL2                    ACT1
 USRBIN        ALCASE                             1                     &
-DCYSCORE           2 1.' '0,,,RESCA' 'SE       ACT                    USRBIN
-USRBIN            12  ACTIVITY       -26     RACL2                    ACT2
+DCYSCORE         2.0                          ACT1                    USRBIN
+USRBIN             2  ACTIVITY       -28     RACL2                    ACT2
 USRBIN        ALCASE                             1                     &
-DCYSCORE           3 1.' '0,,,RESCA' 'SE      ACT1                    USRBIN
-USRBIN            12  ACTIVITY       -26     RACL2                    ACT3
+DCYSCORE         3.0                          ACT2                    USRBIN
+USRBIN             2  ACTIVITY       -29     RACL2                    ACT3
 USRBIN        ALCASE                             1                     &
-DCYSCORE           4 1.' '0,,,RESCA' 'SE      ACT3                    USRBIN
-START ,       0000.0
+DCYSCORE         4.0                          ACT3                    USRBIN
+START        1000000
 STOP

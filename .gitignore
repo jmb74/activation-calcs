@@ -1,0 +1,14 @@
+ran*
+fluka_*/
+fort.*
+*.bnn
+*.rnc
+*.lis
+*.dat
+*_fort.*
+*.pickle
+*.err
+*.log
+*.out
+*_[0-9][0-9].inp
+*.flair
