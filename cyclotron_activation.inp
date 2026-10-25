@@ -5,16 +5,15 @@
 TITLE
 RaCl2 Cyclotron Activation Study
 DEFAULTS                                                              PRECISIO
-BEAM          -0.018                         -0.25     -0.25          PROTON
+BEAM          -0.016                             0         0          PROTON
 BEAMPOS          0.0       0.0      -1.0
 * Beam along +z, target front face z=0.
 GEOBEGIN                                                              COMBNAME
     0    0          Target in Vacuum
 SPH bnyd       0 0 0 100
-SPH world      0 0 0 10
+SPH world      0 0 0 10.0
 RCC inner      0.0 0.0 0.0 0.0 0.0 0.32299 1
-RCC outer      0.0 0.0 0.0 0.0 0.0 0.41874 1.15875
-XYP front      0
+RCC outer      0 0 0 0 0 0.48174 1.15875
 XYP layer1     0.005
 XYP layer2     0.305
 XYP layer3     0.31
@@ -22,10 +21,10 @@ END
 BLKHOLE      5 +bnyd -world
 VACREG       5 +world -outer
 ALCASE       5 +outer -inner
-HAV1         5 +inner -layer1
-WAT          5 +inner +layer1 -layer2
-HAV2         5 +inner +layer2 -layer3
-RACL2        5 +inner +layer3
+HAV1         5 +inner +layer1
+WAT          5 +inner -layer1 +layer2
+HAV2         5 +inner -layer2 +layer3
+TGT          5 +inner -layer3
 END
 GEOEND
 * Havar alloy - density 8.30 g/cm3
@@ -53,7 +52,7 @@ ASSIGNMA    ALUMINUM    ALCASE
 ASSIGNMA       HAVAR      HAV1
 ASSIGNMA       WATER       WAT
 ASSIGNMA       HAVAR      HAV2
-ASSIGNMA       RACL2     RACL2
+ASSIGNMA       RACL2       TGT
 * More complete residual-nucleus evaporation modeling.
 PHYSICS          3.0                                                  EVAPORAT
 PHYSICS          1.0                                                  COALESCE
@@ -67,23 +66,47 @@ DCYTIMES         0.0    3600.0   86400.0  604800.0
 * RESNUCLE 3=all, 1=non-low-neutron, 2=low-neutron products.
 * 1.0 normalization = whole region, not per cm3.
 RESNUCLE         3.0     -21.0                        ALCASE       1.0RESCASE
-RESNUCLE         3.0     -22.0                         RACL2       1.0RESTGT
+RESNUCLE         3.0     -22.0                           TGT       1.0RESTGT
 RESNUCLE         3.0     -23.0                          HAV1       1.0RESHAV1
 RESNUCLE         3.0     -24.0                           WAT       1.0RESWAT
 RESNUCLE         3.0     -25.0                          HAV2       1.0RESHAV2
 DCYSCORE         1.0                       RESCASE   RESHAV2          RESNUCLE
 RANDOMIZ         1.0
-USRBIN             2  ACTIVITY       -26     RACL2                    ACT
+USRBIN             2  ACTIVITY       -26       TGT                    ACT
 USRBIN        ALCASE                             1                     &
 DCYSCORE         1.0                           ACT                    USRBIN
-USRBIN             2  ACTIVITY       -27     RACL2                    ACT1
+USRBIN             2  ACTIVITY       -27       TGT                    ACT1
 USRBIN        ALCASE                             1                     &
 DCYSCORE         2.0                          ACT1                    USRBIN
-USRBIN             2  ACTIVITY       -28     RACL2                    ACT2
+USRBIN             2  ACTIVITY       -28       TGT                    ACT2
 USRBIN        ALCASE                             1                     &
 DCYSCORE         3.0                          ACT2                    USRBIN
-USRBIN             2  ACTIVITY       -29     RACL2                    ACT3
+USRBIN             2  ACTIVITY       -29       TGT                    ACT3
 USRBIN        ALCASE                             1                     &
 DCYSCORE         4.0                          ACT3                    USRBIN
+USRBDX           112   NEUTRON       -30    ALCASE    VACREG         1OUT1N
+USRBDX          0.03   0.00001        50                            18 &
+USRBDX           112    PHOTON       -31    ALCASE    VACREG         1OUT1P
+USRBDX          0.03   0.00001        50                            18 &
+DCYSCORE           1         .        0,         ,      , AC        T3USRBDX
+DCYSCORE   OUT1N OUT                                                   &
+USRBDX           112   NEUTRON       -33    ALCASE    VACREG         1OUT1N1
+USRBDX          0.03   0.00001        50                            18 &
+USRBDX           112    PHOTON       -33    ALCASE    VACREG         1OUT1P1
+USRBDX          0.03   0.00001        50                            18 &
+DCYSCORE           2         .        0,         ,      , AC        T3USRBDX
+DCYSCORE   OUT1N1 OU                                                   &
+USRBDX           112   NEUTRON       -34    ALCASE    VACREG         1OUT1N2
+USRBDX          0.03   0.00001        50                            18 &
+USRBDX           112    PHOTON       -35    ALCASE    VACREG         1OUT1P2
+USRBDX          0.03   0.00001        50                            18 &
+DCYSCORE           3         .        0,         ,      , AC        T3USRBDX
+DCYSCORE   OUT1N2 OU                                                   &
+USRBDX           112   NEUTRON       -36    ALCASE    VACREG         1OUT1N3
+USRBDX          0.03   0.00001        50                            18 &
+USRBDX           112    PHOTON       -37    ALCASE    VACREG         1OUT1P3
+USRBDX          0.03   0.00001        50                            18 &
+DCYSCORE           3         .        0,         ,      , AC        T3USRBDX
+DCYSCORE   OUT1N3 OU                                                   &
 START        1000000
 STOP
