@@ -1,0 +1,283 @@
+* Working copy: configure here with the native FLUKA preprocessor.
+* Original cyclotron_activation.inp is preserved. No generator required.
+* Negative BEAM WHAT(1) uses kinetic energy in GeV: 0.016 = 16 MeV.
+#define EBEAM 0.016
+* Seven days in seconds; 40 microA singly charged protons in particles/s.
+#define IRRT 604800
+#define RATE 249660360000000
+#define NHIST 1000000
+#define SEED 54217137
+* Four cooling-time slots in seconds, in DCYSCORE index order.
+* Keep CT0 at zero. Editing CT1..CT3 updates all associated detectors.
+#define CT0 0
+#define CT1 3600
+#define CT2 86400
+#define CT3 604800
+* Energy cutoffs in GeV; electron value below is kinetic energy.
+#define ECUT 0.0001
+#define GCUT 1E-06
+#define NTEMP 296
+* Neutron library is set literally on LOW-PWXS: JEFF-3.3.
+* Keep this hyphenated name out of #define expression evaluation.
+* Exterior surface area in cm2; update if the apparatus geometry changes.
+#define SAREA 11.9438187126
+#define EMAX 0.03
+#define NMIN 1E-14
+#define NBINS 150
+* Defined switches are ON. Remove or #undef to turn OFF; value 0 is ON.
+#define PHNUC 
+#define PENETR 
+* Cartesian fluence maps: cm, bin counts; shared grid for all particles.
+#define XYZMAP 
+#define XYMAX 1.275
+#define ZMIN -0.02
+#define ZMAX 0.5
+#define NXY 51
+#define NZ 260
+TITLE
+RaCl2 Cyclotron Activation Study
+DEFAULTS                                                              PRECISIO
+BEAM         -$EBEAM                                                  PROTON
+BEAMPOS          0.0       0.0      -1.0
+* Beam along +z; first foil starts z=0, salt starts z=0.31 cm.
+GEOBEGIN                                                              COMBNAME
+    0    0          Target in Vacuum
+SPH bnyd       0 0 0 100
+SPH world      0 0 0 10.0
+RCC inner      0.0 0.0 0.0 0.0 0.0 0.32299 1
+RCC outer      0 0 0 0 0 0.48174 1.15875
+XYP layer1     0.005
+XYP layer2     0.305
+XYP layer3     0.31
+END
+BLKHOLE      5 +bnyd -world
+VACREG       5 +world -outer
+ALCASE       5 +outer -inner
+HAV1         5 +inner +layer1
+WAT          5 +inner -layer1 +layer2
+HAV2         5 +inner -layer2 +layer3
+TGT          5 +inner -layer3
+END
+GEOEND
+* Havar alloy - density 8.30 g/cm3
+* Define additional elemental materials
+MATERIAL        27.0                8.90                              COBALT
+MATERIAL        24.0                7.19                              CHROMIUM
+MATERIAL        42.0               10.22                              MOLYBDEN
+MATERIAL        25.0                7.21                              MANGANES
+* Define Havar alloy
+MATERIAL                            8.30                              HAVAR
+* Composition by mass fraction
+COMPOUND     -0.4200    COBALT   -0.1950  CHROMIUM   -0.1270    NICKELHAVAR
+COMPOUND     -0.0270  TUNGSTEN   -0.0220  MOLYBDEN   -0.0160  MANGANESHAVAR
+COMPOUND     -0.0020    CARBON   -0.0005  BERYLLIU   -0.1905      IRONHAVAR
+* RaCl2 - density 4.9 g/cm3
+* Radium-226 and natural chlorine
+MATERIAL        88.0                5.50                         226.0RADIUM
+MATERIAL        17.0           2.9947E-3                              CHLORINE
+MATERIAL                            4.90                              RACL2
+* Stoichiometric composition: 1 Ra + 2 Cl
+COMPOUND         1.0    RADIUM       2.0  CHLORINE                    RACL2
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM    VACREG
+ASSIGNMA    ALUMINUM    ALCASE
+ASSIGNMA       HAVAR      HAV1
+ASSIGNMA      VACUUM       WAT
+ASSIGNMA       HAVAR      HAV2
+ASSIGNMA       RACL2       TGT
+* Inventory physics retained; explicit pointwise library selection.
+PHYSICS            3                                                  EVAPORAT
+PHYSICS            1                                                  COALESCE
+LOW-PWXS                          $NTEMP                              JEFF-3.3
+* 1 keV photons by default; 100 keV electron kinetic cutoff.
+EMFCUT        -$ECUT     $GCUT              VACREG       TGT
+EMFCUT        -$ECUT     $GCUT         1  HYDROGEN     RACL2          PROD-CUT
+#if PHNUC
+PHOTONUC           1                      HYDROGEN     RACL2
+#endif
+RADDECAY           1         1         3
+* Durations in seconds; singly charged proton beam intensity in p/s.
+IRRPROFI       $IRRT     $RATE
+DCYTIMES        $CT0      $CT1      $CT2      $CT3      $CT0      $CT0
+RANDOMIZ           1     $SEED
+* Unit 21: direct production yields, nuclei/primary (no DCYSCORE).
+RESNUCLE           3       -21                        ALCASE         1Y0
+RESNUCLE           3       -21                          HAV1         1Y1
+RESNUCLE           3       -21                           WAT         1Y2
+RESNUCLE           3       -21                          HAV2         1Y3
+RESNUCLE           3       -21                           TGT         1Y4
+* Prompt surface fluence F and outward current J: sum A and H.
+USRBDX            99   NEUTRON       -24    ALCASE    VACREG    $SAREAPRNAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -24    ALCASE    VACREG    $SAREAPRNAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -24      HAV1    VACREG    $SAREAPRNHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -24      HAV1    VACREG    $SAREAPRNHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -24    ALCASE    VACREG    $SAREAPRPAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -24    ALCASE    VACREG    $SAREAPRPAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -24      HAV1    VACREG    $SAREAPRPHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -24      HAV1    VACREG    $SAREAPRPHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBIN            12   NEUTRON       -26       TGT                    PRN
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -26       TGT                    PRP
+USRBIN        ALCASE                             1                     &
+USRBIN            12    ENERGY       -28       TGT                    EDEP
+USRBIN        ALCASE                             1                     &
+* Cooling index 1: CT0 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D001R0
+RESNUCLE           3       -22                          HAV1         1D001R1
+RESNUCLE           3       -22                           WAT         1D001R2
+RESNUCLE           3       -22                          HAV2         1D001R3
+RESNUCLE           3       -22                           TGT         1D001R4
+DCYSCORE           1                        D001R0    D001R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D001ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1                       D001ACT   D001ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD001NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD001NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD001NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD001NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD001PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD001PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD001PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD001PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           1                       D001NAF   D001PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D001N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D001P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1                         D001N     D001P         1USRBIN
+* Cooling index 2: CT1 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D002R0
+RESNUCLE           3       -22                          HAV1         1D002R1
+RESNUCLE           3       -22                           WAT         1D002R2
+RESNUCLE           3       -22                          HAV2         1D002R3
+RESNUCLE           3       -22                           TGT         1D002R4
+DCYSCORE           2                        D002R0    D002R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D002ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2                       D002ACT   D002ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD002NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD002NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD002NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD002NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD002PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD002PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD002PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD002PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           2                       D002NAF   D002PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D002N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D002P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2                         D002N     D002P         1USRBIN
+* Cooling index 3: CT2 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D003R0
+RESNUCLE           3       -22                          HAV1         1D003R1
+RESNUCLE           3       -22                           WAT         1D003R2
+RESNUCLE           3       -22                          HAV2         1D003R3
+RESNUCLE           3       -22                           TGT         1D003R4
+DCYSCORE           3                        D003R0    D003R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D003ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           3                       D003ACT   D003ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD003NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD003NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD003NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD003NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD003PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD003PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD003PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD003PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           3                       D003NAF   D003PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D003N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D003P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           3                         D003N     D003P         1USRBIN
+* Cooling index 4: CT3 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D004R0
+RESNUCLE           3       -22                          HAV1         1D004R1
+RESNUCLE           3       -22                           WAT         1D004R2
+RESNUCLE           3       -22                          HAV2         1D004R3
+RESNUCLE           3       -22                           TGT         1D004R4
+DCYSCORE           4                        D004R0    D004R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D004ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           4                       D004ACT   D004ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD004NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD004NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD004NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD004NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD004PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD004PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD004PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD004PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           4                       D004NAF   D004PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D004N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D004P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           4                         D004N     D004P         1USRBIN
+* Prompt proton penetration: regional totals and r-z salt map.
+* No DCYSCORE: these detectors score prompt protons per primary.
+#if PENETR
+USRBIN            12    PROTON       -29       TGT                    PREG
+USRBIN        ALCASE                             1                     &
+* Salt-only cylindrical mesh: 50 radial x 26 depth bins.
+* r=0..1 cm; z=0.31..0.32299 cm (about 5 micrometres/depth bin).
+USRBIN            11    PROTON       -29         1         0   0.32299PTGTRZ
+USRBIN             0         0      0.31        50         1        26 &
+#endif
+* Prompt Cartesian track-length fluence, unit 30, cm^-2/primary.
+* Shared mesh spans the complete apparatus and nearby vacuum.
+* Default voxels: 0.5 mm x 0.5 mm x 20 micrometres.
+* No DCYSCORE: compare beam/cascade penetration during irradiation.
+#if XYZMAP
+USRBIN            10    PROTON       -30    $XYMAX    $XYMAX     $ZMAXPXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+USRBIN            10   NEUTRON       -30    $XYMAX    $XYMAX     $ZMAXNXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+USRBIN            10    PHOTON       -30    $XYMAX    $XYMAX     $ZMAXGXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+#endif
+START         $NHIST
+STOP

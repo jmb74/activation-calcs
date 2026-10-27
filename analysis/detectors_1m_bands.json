@@ -1,0 +1,173 @@
+{
+  "center_cm": [
+    0,
+    0,
+    0.316495
+  ],
+  "radius_cm": 100,
+  "energy_bins": 600,
+  "bands": [
+    {
+      "band": 1,
+      "region": "DET01",
+      "z_low_cm": 98.7972703,
+      "z_high_cm": 100.316495,
+      "theta_low_deg": 0.0,
+      "theta_high_deg": 10.000000004028124,
+      "area_cm2": 954.5570313344374
+    },
+    {
+      "band": 2,
+      "region": "DET02",
+      "z_low_cm": 94.28575709,
+      "z_high_cm": 98.7972703,
+      "theta_low_deg": 10.000000004028124,
+      "theta_high_deg": 19.999999980887175,
+      "area_cm2": 2834.6673514218546
+    },
+    {
+      "band": 3,
+      "region": "DET03",
+      "z_low_cm": 86.91877376,
+      "z_high_cm": 94.28575709,
+      "theta_low_deg": 19.999999980887175,
+      "theta_high_deg": 30.000299791295074,
+      "area_cm2": 4628.812141729301
+    },
+    {
+      "band": 4,
+      "region": "DET04",
+      "z_low_cm": 76.92093931,
+      "z_high_cm": 86.91877376,
+      "theta_low_deg": 30.000299791295074,
+      "theta_high_deg": 40.000000001691646,
+      "area_cm2": 6281.82465198539
+    },
+    {
+      "band": 5,
+      "region": "DET05",
+      "z_low_cm": 64.316495,
+      "z_high_cm": 76.92093931,
+      "theta_low_deg": 40.000000001691646,
+      "theta_high_deg": 50.20818050044277,
+      "area_cm2": 7919.605929375529
+    },
+    {
+      "band": 6,
+      "region": "DET06",
+      "z_low_cm": 50.316495,
+      "z_high_cm": 64.316495,
+      "theta_low_deg": 50.20818050044277,
+      "theta_high_deg": 59.99999999999999,
+      "area_cm2": 8796.459430051422
+    },
+    {
+      "band": 7,
+      "region": "DET07",
+      "z_low_cm": 34.51850933,
+      "z_high_cm": 50.316495,
+      "theta_low_deg": 59.99999999999999,
+      "theta_high_deg": 70.0000000015651,
+      "area_cm2": 9926.167144477768
+    },
+    {
+      "band": 8,
+      "region": "DET08",
+      "z_low_cm": 17.68131277,
+      "z_high_cm": 34.51850933,
+      "theta_low_deg": 70.0000000015651,
+      "theta_high_deg": 79.99999999807602,
+      "area_cm2": 10579.122603988668
+    },
+    {
+      "band": 9,
+      "region": "DET09",
+      "z_low_cm": 0.316495,
+      "z_high_cm": 17.68131277,
+      "theta_low_deg": 79.99999999807602,
+      "theta_high_deg": 90.0,
+      "area_cm2": 10910.6367874315
+    },
+    {
+      "band": 10,
+      "region": "DET10",
+      "z_low_cm": -17.04832277,
+      "z_high_cm": 0.316495,
+      "theta_low_deg": 90.0,
+      "theta_high_deg": 100.00000000192398,
+      "area_cm2": 10910.636787431498
+    },
+    {
+      "band": 11,
+      "region": "DET11",
+      "z_low_cm": -33.88551933,
+      "z_high_cm": -17.04832277,
+      "theta_low_deg": 100.00000000192398,
+      "theta_high_deg": 109.9999999984349,
+      "area_cm2": 10579.12260398867
+    },
+    {
+      "band": 12,
+      "region": "DET12",
+      "z_low_cm": -49.683505,
+      "z_high_cm": -33.88551933,
+      "theta_low_deg": 109.9999999984349,
+      "theta_high_deg": 120.00000000000001,
+      "area_cm2": 9926.167144477762
+    },
+    {
+      "band": 13,
+      "region": "DET13",
+      "z_low_cm": -63.96226597,
+      "z_high_cm": -49.683505,
+      "theta_low_deg": 120.00000000000001,
+      "theta_high_deg": 130.00000000100678,
+      "area_cm2": 8971.610113143335
+    },
+    {
+      "band": 14,
+      "region": "DET14",
+      "z_low_cm": -76.28794931,
+      "z_high_cm": -63.96226597,
+      "theta_low_deg": 130.00000000100678,
+      "theta_high_deg": 139.99999999830837,
+      "area_cm2": 7744.455246283625
+    },
+    {
+      "band": 15,
+      "region": "DET15",
+      "z_low_cm": -86.28604538,
+      "z_high_cm": -76.28794931,
+      "theta_low_deg": 139.99999999830837,
+      "theta_high_deg": 150.0000000017832,
+      "area_cm2": 6281.989032679398
+    },
+    {
+      "band": 16,
+      "region": "DET16",
+      "z_low_cm": -93.65276708,
+      "z_high_cm": -86.28604538,
+      "theta_low_deg": 150.0000000017832,
+      "theta_high_deg": 160.00000000236065,
+      "area_cm2": 4628.647754752103
+    },
+    {
+      "band": 17,
+      "region": "DET17",
+      "z_low_cm": -98.1642803,
+      "z_high_cm": -93.65276708,
+      "theta_low_deg": 160.00000000236065,
+      "theta_high_deg": 169.99999999597193,
+      "area_cm2": 2834.667357705045
+    },
+    {
+      "band": 18,
+      "region": "DET18",
+      "z_low_cm": -99.683505,
+      "z_high_cm": -98.1642803,
+      "theta_low_deg": 169.99999999597193,
+      "theta_high_deg": 180.0,
+      "area_cm2": 954.5570313344285
+    }
+  ]
+}
