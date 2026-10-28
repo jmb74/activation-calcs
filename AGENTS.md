@@ -20,7 +20,8 @@ Do not duplicate the shared skill's instructions here.
 - Keep generated simulation outputs out of Git.
 - Document significant changes to physics settings.
 - Current supplied beam condition is 30 MeV protons with the existing 3 mm water
-  layer, 40 microA for seven days (user clarification supersedes earlier 16 MeV).
+  layer, 400 microA for seven days (latest user correction supersedes earlier
+  40 microA and 16 MeV conditions).
 - Explicitly recommend and document the executable before each run. The user's
   selected project executable is `flukadpm`; retain that choice unless a change
   is discussed. Check whether its additional models are needed for the actual

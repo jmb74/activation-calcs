@@ -1,0 +1,1145 @@
+* Corrected loading: 200 mg Ra-226 as anhydrous RaCl2.
+* Salt mass 262.74336 mg; radius 1 cm; density 4.9 g/cm3.
+* Al side/back thickness both 0.15875 cm.
+* Working copy: configure here with the native FLUKA preprocessor.
+* Original cyclotron_activation.inp is preserved. No generator required.
+* Negative BEAM WHAT(1) uses kinetic energy in GeV: 0.030 = 30 MeV.
+#define EBEAM 0.03
+* Seven days in seconds; 400 microA singly charged protons in particles/s.
+#define IRRT 604800
+#define RATE 2496603600000000
+#define NHIST 1000000
+#define SEED 54227137
+* Four cooling-time slots in seconds, in DCYSCORE index order.
+* Keep CT0 at zero. Editing CT1..CT3 updates all associated detectors.
+#define CT0 0
+#define CT1 3600
+#define CT2 86400
+#define CT3 604800
+* Energy cutoffs in GeV; electron value below is kinetic energy.
+#define ECUT 0.0001
+#define GCUT 1E-06
+#define NTEMP 296
+* Neutron library is set literally on LOW-PWXS: JEFF-3.3.
+* Keep this hyphenated name out of #define expression evaluation.
+* Exterior surface area in cm2; update if the apparatus geometry changes.
+#define SAREA 11.97351007272
+#define EMAX 0.03
+#define NMIN 1E-14
+#define NBINS 150
+* Defined switches are ON. Remove or #undef to turn OFF; value 0 is ON.
+#define PHNUC
+#define PENETR
+* Cartesian fluence maps: cm, bin counts; shared grid for all particles.
+#define XYZMAP
+#define XYMAX 1.275
+#define ZMIN -0.02
+#define ZMAX 0.5
+#define NXY 51
+#define NZ 260
+TITLE
+RaCl2 Cyclotron Activation Study
+DEFAULTS                                                              PRECISIO
+* Uniform circular beam: 2 cm diameter, 1 cm radius, no divergence.
+BEAM         -$EBEAM       0.0       0.0       1.0         0      -1.0PROTON
+BEAMPOS          0.0       0.0      -1.0
+* Beam along +z; first foil starts z=0, salt starts z=0.31 cm.
+GEOBEGIN                                                              COMBNAME
+    0    0          Target in Vacuum
+SPH bnyd       0 0 0.316495 120
+SPH far        0 0 0.316495 110
+SPH det100     0 0 0.316495 100
+SPH world      0 0 0 10.0
+RCC inner      0.0 0.0 0.0 0.0 0.0 0.32706812 1
+RCC outer      0 0 0 0 0 0.48581812 1.15875
+XYP layer1     0.005
+XYP layer2     0.305
+XYP layer3     0.31
+* MCNP polar-band planes rotated from x to z; cm.
+XYP dp01       98.79727030
+XYP dp02       94.28575709
+XYP dp03       86.91877376
+XYP dp04       76.92093931
+XYP dp05       64.31649500
+XYP dp06       50.31649500
+XYP dp07       34.51850933
+XYP dp08       17.68131277
+XYP dp09       0.31649500
+XYP dp10       -17.04832277
+XYP dp11       -33.88551933
+XYP dp12       -49.68350500
+XYP dp13       -63.96226597
+XYP dp14       -76.28794931
+XYP dp15       -86.28604538
+XYP dp16       -93.65276708
+XYP dp17       -98.16428030
+END
+BLKHOLE      5 +bnyd -far
+VACREG       5 +world -outer
+ALCASE       5 +outer -inner
+HAV1         5 +inner +layer1
+WAT          5 +inner -layer1 +layer2
+HAV2         5 +inner -layer2 +layer3
+TGT          5 +inner -layer3
+* Vacuum from original 10 cm world to the 100 cm scoring sphere.
+DET01        5 +det100 -world -dp01
+DET02        5 +det100 -world +dp01 -dp02
+DET03        5 +det100 -world +dp02 -dp03
+DET04        5 +det100 -world +dp03 -dp04
+DET05        5 +det100 -world +dp04 -dp05
+DET06        5 +det100 -world +dp05 -dp06
+DET07        5 +det100 -world +dp06 -dp07
+DET08        5 +det100 -world +dp07 -dp08
+DET09        5 +det100 -world +dp08 -dp09
+DET10        5 +det100 -world +dp09 -dp10
+DET11        5 +det100 -world +dp10 -dp11
+DET12        5 +det100 -world +dp11 -dp12
+DET13        5 +det100 -world +dp12 -dp13
+DET14        5 +det100 -world +dp13 -dp14
+DET15        5 +det100 -world +dp14 -dp15
+DET16        5 +det100 -world +dp15 -dp16
+DET17        5 +det100 -world +dp16 -dp17
+DET18        5 +det100 -world +dp17
+OUTDET       5 +far -det100
+END
+GEOEND
+* Havar alloy - density 8.30 g/cm3
+* Define additional elemental materials
+MATERIAL        27.0                8.90                              COBALT
+MATERIAL        24.0                7.19                              CHROMIUM
+MATERIAL        42.0               10.22                              MOLYBDEN
+MATERIAL        25.0                7.21                              MANGANES
+* Define Havar alloy
+MATERIAL                            8.30                              HAVAR
+* Composition by mass fraction
+COMPOUND     -0.4200    COBALT   -0.1950  CHROMIUM   -0.1270    NICKELHAVAR
+COMPOUND     -0.0270  TUNGSTEN   -0.0220  MOLYBDEN   -0.0160  MANGANESHAVAR
+COMPOUND     -0.0020    CARBON   -0.0005  BERYLLIU   -0.1905      IRONHAVAR
+* Al 6061: MCNP M4 mass proportions, density 2.7 g/cm3.
+MATERIAL          30               7.133                              ZINC
+MATERIAL                             2.7                              AL6061
+COMPOUND       -0.01  MAGNESIU    -0.972  ALUMINUM    -0.006   SILICONAL6061
+COMPOUND   -0.000876  TITANIUM  -0.00195  CHROMIUM -0.000876  MANGANESAL6061
+COMPOUND   -0.004088      IRON  -0.00275    COPPER  -0.00146      ZINCAL6061
+* RaCl2 - density 4.9 g/cm3
+* Radium-226 and natural chlorine
+MATERIAL        88.0                5.50                         226.0RADIUM
+MATERIAL        17.0           2.9947E-3                              CHLORINE
+MATERIAL                            4.90                              RACL2
+* Stoichiometric composition: 1 Ra + 2 Cl
+COMPOUND         1.0    RADIUM       2.0  CHLORINE                    RACL2
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM    VACREG
+ASSIGNMA      AL6061    ALCASE
+ASSIGNMA       HAVAR      HAV1
+ASSIGNMA       WATER       WAT
+ASSIGNMA       HAVAR      HAV2
+ASSIGNMA       RACL2       TGT
+ASSIGNMA      VACUUM     DET01    OUTDET         1
+* Inventory physics retained; explicit pointwise library selection.
+PHYSICS            3                                                  EVAPORAT
+PHYSICS            1                                                  COALESCE
+LOW-PWXS                          $NTEMP                              JEFF-3.3
+* 1 keV photons by default; 100 keV electron kinetic cutoff.
+EMFCUT        -$ECUT     $GCUT              VACREG       TGT
+EMFCUT        -$ECUT     $GCUT               DET01    OUTDET
+EMFCUT        -$ECUT     $GCUT         1  HYDROGEN     RACL2          PROD-CUT
+#if PHNUC
+PHOTONUC           1                      HYDROGEN     RACL2
+#endif
+RADDECAY           1         1         3
+* Durations in seconds; singly charged proton beam intensity in p/s.
+IRRPROFI       $IRRT     $RATE
+DCYTIMES        $CT0      $CT1      $CT2      $CT3      $CT0      $CT0
+RANDOMIZ           1     $SEED
+* Unit 21: direct production yields, nuclei/primary (no DCYSCORE).
+RESNUCLE           3       -21                        ALCASE         1Y0
+RESNUCLE           3       -21                          HAV1         1Y1
+RESNUCLE           3       -21                           WAT         1Y2
+RESNUCLE           3       -21                          HAV2         1Y3
+RESNUCLE           3       -21                           TGT         1Y4
+* Prompt surface fluence F and outward current J: sum A and H.
+USRBDX            99   NEUTRON       -24    ALCASE    VACREG    $SAREAPRNAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -24    ALCASE    VACREG    $SAREAPRNAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -24      HAV1    VACREG    $SAREAPRNHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -24      HAV1    VACREG    $SAREAPRNHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -24    ALCASE    VACREG    $SAREAPRPAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -24    ALCASE    VACREG    $SAREAPRPAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -24      HAV1    VACREG    $SAREAPRPHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -24      HAV1    VACREG    $SAREAPRPHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBIN            12   NEUTRON       -26       TGT                    PRN
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -26       TGT                    PRP
+USRBIN        ALCASE                             1                     &
+USRBIN            12    ENERGY       -28       TGT                    EDEP
+USRBIN        ALCASE                             1                     &
+* Cooling index 1: CT0 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D001R0
+RESNUCLE           3       -22                          HAV1         1D001R1
+RESNUCLE           3       -22                           WAT         1D001R2
+RESNUCLE           3       -22                          HAV2         1D001R3
+RESNUCLE           3       -22                           TGT         1D001R4
+DCYSCORE           1                        D001R0    D001R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D001ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1                       D001ACT   D001ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD001NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD001NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD001NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD001NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD001PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD001PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD001PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD001PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           1                       D001NAF   D001PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D001N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D001P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1                         D001N     D001P         1USRBIN
+* Cooling index 2: CT1 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D002R0
+RESNUCLE           3       -22                          HAV1         1D002R1
+RESNUCLE           3       -22                           WAT         1D002R2
+RESNUCLE           3       -22                          HAV2         1D002R3
+RESNUCLE           3       -22                           TGT         1D002R4
+DCYSCORE           2                        D002R0    D002R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D002ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2                       D002ACT   D002ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD002NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD002NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD002NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD002NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD002PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD002PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD002PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD002PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           2                       D002NAF   D002PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D002N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D002P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2                         D002N     D002P         1USRBIN
+* Cooling index 3: CT2 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D003R0
+RESNUCLE           3       -22                          HAV1         1D003R1
+RESNUCLE           3       -22                           WAT         1D003R2
+RESNUCLE           3       -22                          HAV2         1D003R3
+RESNUCLE           3       -22                           TGT         1D003R4
+DCYSCORE           3                        D003R0    D003R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D003ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           3                       D003ACT   D003ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD003NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD003NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD003NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD003NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD003PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD003PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD003PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD003PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           3                       D003NAF   D003PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D003N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D003P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           3                         D003N     D003P         1USRBIN
+* Cooling index 4: CT3 seconds after EOI.
+RESNUCLE           3       -22                        ALCASE         1D004R0
+RESNUCLE           3       -22                          HAV1         1D004R1
+RESNUCLE           3       -22                           WAT         1D004R2
+RESNUCLE           3       -22                          HAV2         1D004R3
+RESNUCLE           3       -22                           TGT         1D004R4
+DCYSCORE           4                        D004R0    D004R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D004ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           4                       D004ACT   D004ACT         1USRBIN
+USRBDX            99   NEUTRON       -25    ALCASE    VACREG    $SAREAD004NAF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25    ALCASE    VACREG    $SAREAD004NAJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99   NEUTRON       -25      HAV1    VACREG    $SAREAD004NHF
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            -1   NEUTRON       -25      HAV1    VACREG    $SAREAD004NHJ
+USRBDX         $EMAX     $NMIN    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25    ALCASE    VACREG    $SAREAD004PAF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25    ALCASE    VACREG    $SAREAD004PAJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            99    PHOTON       -25      HAV1    VACREG    $SAREAD004PHF
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+USRBDX            -1    PHOTON       -25      HAV1    VACREG    $SAREAD004PHJ
+USRBDX         $EMAX     $GCUT    $NBINS  6.283185         0         1 &
+DCYSCORE           4                       D004NAF   D004PHJ         1USRBDX
+USRBIN            12   NEUTRON       -27       TGT                    D004N
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -27       TGT                    D004P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           4                         D004N     D004P         1USRBIN
+* Prompt proton penetration: regional totals and r-z salt map.
+* No DCYSCORE: these detectors score prompt protons per primary.
+#if PENETR
+USRBIN            12    PROTON       -29       TGT                    PREG
+USRBIN        ALCASE                             1                     &
+* Salt-only cylindrical mesh: 50 radial x 26 depth bins.
+* r=0..1 cm; z=0.31..0.32706812 cm (about 6.57 micrometres/depth bin).
+USRBIN            11    PROTON       -29         1         00.32706812PTGTRZ
+USRBIN             0         0      0.31        50         1        26 &
+#endif
+* Prompt Cartesian track-length fluence, unit 30, cm^-2/primary.
+* Shared mesh spans the complete apparatus and nearby vacuum.
+* Default voxels: 0.5 mm x 0.5 mm x 20 micrometres.
+* No DCYSCORE: compare beam/cascade penetration during irradiation.
+#if XYZMAP
+USRBIN            10    PROTON       -30    $XYMAX    $XYMAX     $ZMAXPXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+USRBIN            10   NEUTRON       -30    $XYMAX    $XYMAX     $ZMAXNXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+USRBIN            10    PHOTON       -30    $XYMAX    $XYMAX     $ZMAXGXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+#endif
+* Diagnostic copy: prompt proton crossing-energy spectra, unit 31.
+* Area normalization 1: integrate energy and solid angle for crossings/primary.
+* PIN: HAV2 -> salt entry; POUT: salt -> case, including side/back exits.
+* 0..40 MeV in 200 linear bins. No DCYSCORE (prompt only).
+USRBDX             1    PROTON       -31      HAV2       TGT         1PIN
+USRBDX          0.04         0       200  6.283185         0         1 &
+USRBDX             1    PROTON       -31       TGT    ALCASE         1POUT
+USRBDX          0.04         0       200  6.283185         0         1 &
+* 1 m MCNP-style spectra: 18 spatial polar bands, outward crossings.
+* NF/PF/GF: fluence per band area; NJ/PJ/GJ: current, area=1.
+* Units 32 prompt; 34..37 cooling indices 1..4.
+* 600 log energy bins; neutron 1e-9..50 MeV, proton 1e-5..30 MeV,
+* photon 0.01..30 MeV. Angle here is relative to local surface normal;
+* all outward directions included, spatial polar bands are geometry regions.
+USRBDX            99   NEUTRON       -32     DET01    OUTDET  954.5570M0NF01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET01    OUTDET         1M0NJ01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET01    OUTDET  954.5570M0PF01
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET01    OUTDET         1M0PJ01
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET01    OUTDET  954.5570M0GF01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET01    OUTDET         1M0GJ01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET02    OUTDET 2834.6674M0NF02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET02    OUTDET         1M0NJ02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET02    OUTDET 2834.6674M0PF02
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET02    OUTDET         1M0PJ02
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET02    OUTDET 2834.6674M0GF02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET02    OUTDET         1M0GJ02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET03    OUTDET 4628.8121M0NF03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET03    OUTDET         1M0NJ03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET03    OUTDET 4628.8121M0PF03
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET03    OUTDET         1M0PJ03
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET03    OUTDET 4628.8121M0GF03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET03    OUTDET         1M0GJ03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET04    OUTDET 6281.8247M0NF04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET04    OUTDET         1M0NJ04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET04    OUTDET 6281.8247M0PF04
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET04    OUTDET         1M0PJ04
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET04    OUTDET 6281.8247M0GF04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET04    OUTDET         1M0GJ04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET05    OUTDET 7919.6059M0NF05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET05    OUTDET         1M0NJ05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET05    OUTDET 7919.6059M0PF05
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET05    OUTDET         1M0PJ05
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET05    OUTDET 7919.6059M0GF05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET05    OUTDET         1M0GJ05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET06    OUTDET 8796.4594M0NF06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET06    OUTDET         1M0NJ06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET06    OUTDET 8796.4594M0PF06
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET06    OUTDET         1M0PJ06
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET06    OUTDET 8796.4594M0GF06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET06    OUTDET         1M0GJ06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET07    OUTDET 9926.1671M0NF07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET07    OUTDET         1M0NJ07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET07    OUTDET 9926.1671M0PF07
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET07    OUTDET         1M0PJ07
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET07    OUTDET 9926.1671M0GF07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET07    OUTDET         1M0GJ07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET08    OUTDET10579.1226M0NF08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET08    OUTDET         1M0NJ08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET08    OUTDET10579.1226M0PF08
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET08    OUTDET         1M0PJ08
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET08    OUTDET10579.1226M0GF08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET08    OUTDET         1M0GJ08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET09    OUTDET10910.6368M0NF09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET09    OUTDET         1M0NJ09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET09    OUTDET10910.6368M0PF09
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET09    OUTDET         1M0PJ09
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET09    OUTDET10910.6368M0GF09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET09    OUTDET         1M0GJ09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET10    OUTDET10910.6368M0NF10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET10    OUTDET         1M0NJ10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET10    OUTDET10910.6368M0PF10
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET10    OUTDET         1M0PJ10
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET10    OUTDET10910.6368M0GF10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET10    OUTDET         1M0GJ10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET11    OUTDET10579.1226M0NF11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET11    OUTDET         1M0NJ11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET11    OUTDET10579.1226M0PF11
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET11    OUTDET         1M0PJ11
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET11    OUTDET10579.1226M0GF11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET11    OUTDET         1M0GJ11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET12    OUTDET 9926.1671M0NF12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET12    OUTDET         1M0NJ12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET12    OUTDET 9926.1671M0PF12
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET12    OUTDET         1M0PJ12
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET12    OUTDET 9926.1671M0GF12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET12    OUTDET         1M0GJ12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET13    OUTDET 8971.6101M0NF13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET13    OUTDET         1M0NJ13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET13    OUTDET 8971.6101M0PF13
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET13    OUTDET         1M0PJ13
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET13    OUTDET 8971.6101M0GF13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET13    OUTDET         1M0GJ13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET14    OUTDET 7744.4552M0NF14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET14    OUTDET         1M0NJ14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET14    OUTDET 7744.4552M0PF14
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET14    OUTDET         1M0PJ14
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET14    OUTDET 7744.4552M0GF14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET14    OUTDET         1M0GJ14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET15    OUTDET 6281.9890M0NF15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET15    OUTDET         1M0NJ15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET15    OUTDET 6281.9890M0PF15
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET15    OUTDET         1M0PJ15
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET15    OUTDET 6281.9890M0GF15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET15    OUTDET         1M0GJ15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET16    OUTDET 4628.6478M0NF16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET16    OUTDET         1M0NJ16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET16    OUTDET 4628.6478M0PF16
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET16    OUTDET         1M0PJ16
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET16    OUTDET 4628.6478M0GF16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET16    OUTDET         1M0GJ16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET17    OUTDET 2834.6674M0NF17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET17    OUTDET         1M0NJ17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET17    OUTDET 2834.6674M0PF17
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET17    OUTDET         1M0PJ17
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET17    OUTDET 2834.6674M0GF17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET17    OUTDET         1M0GJ17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -32     DET18    OUTDET  954.5570M0NF18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -32     DET18    OUTDET         1M0NJ18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PROTON       -32     DET18    OUTDET  954.5570M0PF18
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -32     DET18    OUTDET         1M0PJ18
+USRBDX          0.03     1E-08       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -32     DET18    OUTDET  954.5570M0GF18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -32     DET18    OUTDET         1M0GJ18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET01    OUTDET  954.5570M1NF01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET01    OUTDET         1M1NJ01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET01    OUTDET  954.5570M1GF01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET01    OUTDET         1M1GJ01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET02    OUTDET 2834.6674M1NF02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET02    OUTDET         1M1NJ02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET02    OUTDET 2834.6674M1GF02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET02    OUTDET         1M1GJ02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET03    OUTDET 4628.8121M1NF03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET03    OUTDET         1M1NJ03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET03    OUTDET 4628.8121M1GF03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET03    OUTDET         1M1GJ03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET04    OUTDET 6281.8247M1NF04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET04    OUTDET         1M1NJ04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET04    OUTDET 6281.8247M1GF04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET04    OUTDET         1M1GJ04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET05    OUTDET 7919.6059M1NF05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET05    OUTDET         1M1NJ05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET05    OUTDET 7919.6059M1GF05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET05    OUTDET         1M1GJ05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET06    OUTDET 8796.4594M1NF06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET06    OUTDET         1M1NJ06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET06    OUTDET 8796.4594M1GF06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET06    OUTDET         1M1GJ06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET07    OUTDET 9926.1671M1NF07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET07    OUTDET         1M1NJ07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET07    OUTDET 9926.1671M1GF07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET07    OUTDET         1M1GJ07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET08    OUTDET10579.1226M1NF08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET08    OUTDET         1M1NJ08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET08    OUTDET10579.1226M1GF08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET08    OUTDET         1M1GJ08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET09    OUTDET10910.6368M1NF09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET09    OUTDET         1M1NJ09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET09    OUTDET10910.6368M1GF09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET09    OUTDET         1M1GJ09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET10    OUTDET10910.6368M1NF10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET10    OUTDET         1M1NJ10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET10    OUTDET10910.6368M1GF10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET10    OUTDET         1M1GJ10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET11    OUTDET10579.1226M1NF11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET11    OUTDET         1M1NJ11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET11    OUTDET10579.1226M1GF11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET11    OUTDET         1M1GJ11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET12    OUTDET 9926.1671M1NF12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET12    OUTDET         1M1NJ12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET12    OUTDET 9926.1671M1GF12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET12    OUTDET         1M1GJ12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET13    OUTDET 8971.6101M1NF13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET13    OUTDET         1M1NJ13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET13    OUTDET 8971.6101M1GF13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET13    OUTDET         1M1GJ13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET14    OUTDET 7744.4552M1NF14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET14    OUTDET         1M1NJ14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET14    OUTDET 7744.4552M1GF14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET14    OUTDET         1M1GJ14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET15    OUTDET 6281.9890M1NF15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET15    OUTDET         1M1NJ15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET15    OUTDET 6281.9890M1GF15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET15    OUTDET         1M1GJ15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET16    OUTDET 4628.6478M1NF16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET16    OUTDET         1M1NJ16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET16    OUTDET 4628.6478M1GF16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET16    OUTDET         1M1GJ16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET17    OUTDET 2834.6674M1NF17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET17    OUTDET         1M1NJ17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET17    OUTDET 2834.6674M1GF17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET17    OUTDET         1M1GJ17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -34     DET18    OUTDET  954.5570M1NF18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -34     DET18    OUTDET         1M1NJ18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -34     DET18    OUTDET  954.5570M1GF18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -34     DET18    OUTDET         1M1GJ18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+DCYSCORE           1                        M1NF01    M1GJ18         1USRBDX
+USRBDX            99   NEUTRON       -35     DET01    OUTDET  954.5570M2NF01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET01    OUTDET         1M2NJ01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET01    OUTDET  954.5570M2GF01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET01    OUTDET         1M2GJ01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET02    OUTDET 2834.6674M2NF02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET02    OUTDET         1M2NJ02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET02    OUTDET 2834.6674M2GF02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET02    OUTDET         1M2GJ02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET03    OUTDET 4628.8121M2NF03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET03    OUTDET         1M2NJ03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET03    OUTDET 4628.8121M2GF03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET03    OUTDET         1M2GJ03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET04    OUTDET 6281.8247M2NF04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET04    OUTDET         1M2NJ04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET04    OUTDET 6281.8247M2GF04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET04    OUTDET         1M2GJ04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET05    OUTDET 7919.6059M2NF05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET05    OUTDET         1M2NJ05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET05    OUTDET 7919.6059M2GF05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET05    OUTDET         1M2GJ05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET06    OUTDET 8796.4594M2NF06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET06    OUTDET         1M2NJ06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET06    OUTDET 8796.4594M2GF06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET06    OUTDET         1M2GJ06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET07    OUTDET 9926.1671M2NF07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET07    OUTDET         1M2NJ07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET07    OUTDET 9926.1671M2GF07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET07    OUTDET         1M2GJ07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET08    OUTDET10579.1226M2NF08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET08    OUTDET         1M2NJ08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET08    OUTDET10579.1226M2GF08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET08    OUTDET         1M2GJ08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET09    OUTDET10910.6368M2NF09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET09    OUTDET         1M2NJ09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET09    OUTDET10910.6368M2GF09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET09    OUTDET         1M2GJ09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET10    OUTDET10910.6368M2NF10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET10    OUTDET         1M2NJ10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET10    OUTDET10910.6368M2GF10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET10    OUTDET         1M2GJ10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET11    OUTDET10579.1226M2NF11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET11    OUTDET         1M2NJ11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET11    OUTDET10579.1226M2GF11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET11    OUTDET         1M2GJ11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET12    OUTDET 9926.1671M2NF12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET12    OUTDET         1M2NJ12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET12    OUTDET 9926.1671M2GF12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET12    OUTDET         1M2GJ12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET13    OUTDET 8971.6101M2NF13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET13    OUTDET         1M2NJ13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET13    OUTDET 8971.6101M2GF13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET13    OUTDET         1M2GJ13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET14    OUTDET 7744.4552M2NF14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET14    OUTDET         1M2NJ14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET14    OUTDET 7744.4552M2GF14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET14    OUTDET         1M2GJ14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET15    OUTDET 6281.9890M2NF15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET15    OUTDET         1M2NJ15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET15    OUTDET 6281.9890M2GF15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET15    OUTDET         1M2GJ15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET16    OUTDET 4628.6478M2NF16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET16    OUTDET         1M2NJ16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET16    OUTDET 4628.6478M2GF16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET16    OUTDET         1M2GJ16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET17    OUTDET 2834.6674M2NF17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET17    OUTDET         1M2NJ17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET17    OUTDET 2834.6674M2GF17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET17    OUTDET         1M2GJ17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -35     DET18    OUTDET  954.5570M2NF18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -35     DET18    OUTDET         1M2NJ18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -35     DET18    OUTDET  954.5570M2GF18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -35     DET18    OUTDET         1M2GJ18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+DCYSCORE           2                        M2NF01    M2GJ18         1USRBDX
+USRBDX            99   NEUTRON       -36     DET01    OUTDET  954.5570M3NF01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET01    OUTDET         1M3NJ01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET01    OUTDET  954.5570M3GF01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET01    OUTDET         1M3GJ01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET02    OUTDET 2834.6674M3NF02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET02    OUTDET         1M3NJ02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET02    OUTDET 2834.6674M3GF02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET02    OUTDET         1M3GJ02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET03    OUTDET 4628.8121M3NF03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET03    OUTDET         1M3NJ03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET03    OUTDET 4628.8121M3GF03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET03    OUTDET         1M3GJ03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET04    OUTDET 6281.8247M3NF04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET04    OUTDET         1M3NJ04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET04    OUTDET 6281.8247M3GF04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET04    OUTDET         1M3GJ04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET05    OUTDET 7919.6059M3NF05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET05    OUTDET         1M3NJ05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET05    OUTDET 7919.6059M3GF05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET05    OUTDET         1M3GJ05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET06    OUTDET 8796.4594M3NF06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET06    OUTDET         1M3NJ06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET06    OUTDET 8796.4594M3GF06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET06    OUTDET         1M3GJ06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET07    OUTDET 9926.1671M3NF07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET07    OUTDET         1M3NJ07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET07    OUTDET 9926.1671M3GF07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET07    OUTDET         1M3GJ07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET08    OUTDET10579.1226M3NF08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET08    OUTDET         1M3NJ08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET08    OUTDET10579.1226M3GF08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET08    OUTDET         1M3GJ08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET09    OUTDET10910.6368M3NF09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET09    OUTDET         1M3NJ09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET09    OUTDET10910.6368M3GF09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET09    OUTDET         1M3GJ09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET10    OUTDET10910.6368M3NF10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET10    OUTDET         1M3NJ10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET10    OUTDET10910.6368M3GF10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET10    OUTDET         1M3GJ10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET11    OUTDET10579.1226M3NF11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET11    OUTDET         1M3NJ11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET11    OUTDET10579.1226M3GF11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET11    OUTDET         1M3GJ11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET12    OUTDET 9926.1671M3NF12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET12    OUTDET         1M3NJ12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET12    OUTDET 9926.1671M3GF12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET12    OUTDET         1M3GJ12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET13    OUTDET 8971.6101M3NF13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET13    OUTDET         1M3NJ13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET13    OUTDET 8971.6101M3GF13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET13    OUTDET         1M3GJ13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET14    OUTDET 7744.4552M3NF14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET14    OUTDET         1M3NJ14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET14    OUTDET 7744.4552M3GF14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET14    OUTDET         1M3GJ14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET15    OUTDET 6281.9890M3NF15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET15    OUTDET         1M3NJ15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET15    OUTDET 6281.9890M3GF15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET15    OUTDET         1M3GJ15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET16    OUTDET 4628.6478M3NF16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET16    OUTDET         1M3NJ16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET16    OUTDET 4628.6478M3GF16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET16    OUTDET         1M3GJ16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET17    OUTDET 2834.6674M3NF17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET17    OUTDET         1M3NJ17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET17    OUTDET 2834.6674M3GF17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET17    OUTDET         1M3GJ17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -36     DET18    OUTDET  954.5570M3NF18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -36     DET18    OUTDET         1M3NJ18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -36     DET18    OUTDET  954.5570M3GF18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -36     DET18    OUTDET         1M3GJ18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+DCYSCORE           3                        M3NF01    M3GJ18         1USRBDX
+USRBDX            99   NEUTRON       -37     DET01    OUTDET  954.5570M4NF01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET01    OUTDET         1M4NJ01
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET01    OUTDET  954.5570M4GF01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET01    OUTDET         1M4GJ01
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET02    OUTDET 2834.6674M4NF02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET02    OUTDET         1M4NJ02
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET02    OUTDET 2834.6674M4GF02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET02    OUTDET         1M4GJ02
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET03    OUTDET 4628.8121M4NF03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET03    OUTDET         1M4NJ03
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET03    OUTDET 4628.8121M4GF03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET03    OUTDET         1M4GJ03
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET04    OUTDET 6281.8247M4NF04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET04    OUTDET         1M4NJ04
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET04    OUTDET 6281.8247M4GF04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET04    OUTDET         1M4GJ04
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET05    OUTDET 7919.6059M4NF05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET05    OUTDET         1M4NJ05
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET05    OUTDET 7919.6059M4GF05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET05    OUTDET         1M4GJ05
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET06    OUTDET 8796.4594M4NF06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET06    OUTDET         1M4NJ06
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET06    OUTDET 8796.4594M4GF06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET06    OUTDET         1M4GJ06
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET07    OUTDET 9926.1671M4NF07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET07    OUTDET         1M4NJ07
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET07    OUTDET 9926.1671M4GF07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET07    OUTDET         1M4GJ07
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET08    OUTDET10579.1226M4NF08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET08    OUTDET         1M4NJ08
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET08    OUTDET10579.1226M4GF08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET08    OUTDET         1M4GJ08
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET09    OUTDET10910.6368M4NF09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET09    OUTDET         1M4NJ09
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET09    OUTDET10910.6368M4GF09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET09    OUTDET         1M4GJ09
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET10    OUTDET10910.6368M4NF10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET10    OUTDET         1M4NJ10
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET10    OUTDET10910.6368M4GF10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET10    OUTDET         1M4GJ10
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET11    OUTDET10579.1226M4NF11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET11    OUTDET         1M4NJ11
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET11    OUTDET10579.1226M4GF11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET11    OUTDET         1M4GJ11
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET12    OUTDET 9926.1671M4NF12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET12    OUTDET         1M4NJ12
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET12    OUTDET 9926.1671M4GF12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET12    OUTDET         1M4GJ12
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET13    OUTDET 8971.6101M4NF13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET13    OUTDET         1M4NJ13
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET13    OUTDET 8971.6101M4GF13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET13    OUTDET         1M4GJ13
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET14    OUTDET 7744.4552M4NF14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET14    OUTDET         1M4NJ14
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET14    OUTDET 7744.4552M4GF14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET14    OUTDET         1M4GJ14
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET15    OUTDET 6281.9890M4NF15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET15    OUTDET         1M4NJ15
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET15    OUTDET 6281.9890M4GF15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET15    OUTDET         1M4GJ15
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET16    OUTDET 4628.6478M4NF16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET16    OUTDET         1M4NJ16
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET16    OUTDET 4628.6478M4GF16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET16    OUTDET         1M4GJ16
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET17    OUTDET 2834.6674M4NF17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET17    OUTDET         1M4NJ17
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET17    OUTDET 2834.6674M4GF17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET17    OUTDET         1M4GJ17
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            99   NEUTRON       -37     DET18    OUTDET  954.5570M4NF18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            -1   NEUTRON       -37     DET18    OUTDET         1M4NJ18
+USRBDX          0.05     1E-12       6006.28318531         0         1 &
+USRBDX            99    PHOTON       -37     DET18    OUTDET  954.5570M4GF18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -37     DET18    OUTDET         1M4GJ18
+USRBDX          0.03     1E-05       6006.28318531         0         1 &
+DCYSCORE           4                        M4NF01    M4GJ18         1USRBDX
+START         $NHIST
+STOP

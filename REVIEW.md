@@ -1,3 +1,8 @@
+> Current condition corrected to **400 microA** on 2026-10-26. Use
+> `working/cycloinv_400uA_1m.flair`; earlier completed runs and historical
+> discussion below used 40 microA. See `analysis/400uA_update.md` for scaling,
+> recommendations and revised wide cooling-product exports.
+
 # Activation input review
 
 Prepared for CERN FLUKA 4-5.2. The original `cyclotron_activation.inp` is unchanged.
