@@ -1,0 +1,636 @@
+* v5 copy of v4: 24.35 MeV, 200 microA; previous inputs preserved.
+* 1 mm target: 0.200 g Ra226 as RaCl2 plus 0.4429 g graphite.
+* Density derived from fixed masses and pi*(1 cm)^2*(0.1 cm).
+* Recommended executable: /usr/local/fluka/bin/flukadpm; no run performed.
+* Working copy: configure here with the native FLUKA preprocessor.
+* Original cyclotron_activation.inp is preserved. No generator required.
+* Negative BEAM energy is GeV; baseline 24.35 MeV at source.
+#define EBEAM 0.02435
+* Graphite partial density (g carbon/cm3 mixture); fixed Ra/Cl loading.
+#define CRHO 1.409794485908
+#define RARHO 0.63661977236758
+#define CLRHO 0.19971832681797
+#define RHOM 2.2461325850936
+* Keep RHOM = CRHO + RARHO + CLRHO; case generator updates both.
+* Proton scoring range: raise EMAX above highest requested source energy.
+#define EMAX 0.0245
+#define NEBIN 1200
+* Seven days in seconds; 200 microA singly charged protons in particles/s.
+#define IRRT 604800
+#define RATE 1248301814892200
+#define NHIST 1000000
+#define SEED 54227137
+* Energy cutoffs in GeV; electron value below is kinetic energy.
+#define ECUT 0.0001
+#define GCUT 1E-06
+#define NTEMP 296
+* Neutron library is set literally on LOW-PWXS: JEFF-3.3.
+* Keep this hyphenated name out of #define expression evaluation.
+* Defined switches are ON. Remove or #undef to turn OFF; value 0 is ON.
+#define PHNUC
+#define PENETR
+* Cartesian fluence maps: cm, bin counts; shared grid for all particles.
+#define XYZMAP
+#define XYMAX 1.3
+#define ZMIN -0.02
+#define ZMAX 1.8
+#define NXY 51
+#define NZ 260
+TITLE
+Target2 v5: 24.35 MeV, 200 microA, 1 mm RaCl2/graphite
+DEFAULTS                                                              PRECISIO
+* Current beam retained: Gaussian x/y FWHM 1.6 cm; no divergence.
+BEAM         -$EBEAM       0.0       0.0      -1.6      -1.6       1.0PROTON
+BEAMPOS          0.0       0.0      -5.0
+* Supplied MCNP x axis mapped to FLUKA +z; target front z=0.155 cm.
+GEOBEGIN                                                              COMBNAME
+    0    0          Enclosed target: one Al housing, one exterior vacuum
+SPH world      0 0 0.255 110
+* Housing outer envelope; inner cavity starts behind 0.5 mm Al front.
+RCC outer      0 0 0 0 0 1.655 1.2
+RCC inner      0 0 0.05 0 0 1.405 1
+* Only four internal interfaces; cavity RCC defines its two ends.
+XYP watend     0.15
+XYP taend      0.155
+XYP tgtend     0.255
+XYP cuend      0.455
+END
+BLKHOLE      5 -world
+VACREG       5 +world -outer
+ALCASE       5 +outer -inner
+WAT          5 +inner +watend
+TAWIN        5 +inner -watend +taend
+CUBACK       5 +inner -tgtend +cuend
+COOL         5 +inner -cuend
+TGT          5 +inner -taend +tgtend
+END
+GEOEND
+* Elemental materials for Al6061 alloy.
+MATERIAL          24                7.19                              CHROMIUM
+MATERIAL          25                7.21                              MANGANES
+* Al 6061: supplied MCNP M1 mass proportions, density 2.7 g/cm3.
+MATERIAL          30               7.133                              ZINC
+MATERIAL                             2.7                              AL6061
+COMPOUND       -0.01  MAGNESIU    -0.972  ALUMINUM    -0.006   SILICONAL6061
+COMPOUND   -0.000876  TITANIUM  -0.00195  CHROMIUM -0.000876  MANGANESAL6061
+COMPOUND   -0.004088      IRON  -0.00275    COPPER  -0.00146      ZINCAL6061
+* v3: exact 0.200 g Ra226; Cl from RaCl2 stoichiometry (226,35.45).
+* Graphite mass 0.4429 g; homogeneous anhydrous mixture.
+MATERIAL          88                 5.5                           226RADIUM
+MATERIAL          17           0.0029947                              CHLORINE
+MATERIAL          73              16.654                           181TANTALUM
+MATERIAL          29                8.96                            63CU63
+MATERIAL          29                8.96                            65CU65
+MATERIAL                            8.96                              CUMIX
+COMPOUND      0.6917      CU63    0.3083      CU65                    CUMIX
+MATERIAL                           $RHOM                              RACL2
+COMPOUND     -$RARHO    RADIUM    -$CRHO    CARBON   -$CLRHO  CHLORINERACL2
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM    VACREG
+ASSIGNMA      AL6061    ALCASE
+ASSIGNMA       WATER       WAT
+ASSIGNMA    TANTALUM     TAWIN
+ASSIGNMA       CUMIX    CUBACK
+ASSIGNMA       WATER      COOL
+ASSIGNMA       RACL2       TGT
+* Inventory physics retained; explicit pointwise library selection.
+PHYSICS            3                                                  EVAPORAT
+PHYSICS            1                                                  COALESCE
+LOW-PWXS                          $NTEMP                              JEFF-3.3
+* 1 keV photons by default; 100 keV electron kinetic cutoff.
+EMFCUT        -$ECUT     $GCUT              VACREG       TGT
+EMFCUT        -$ECUT     $GCUT         1  HYDROGEN     RACL2          PROD-CUT
+#if PHNUC
+PHOTONUC           1                      HYDROGEN     RACL2
+#endif
+RADDECAY           1         1         3
+* Durations in seconds; singly charged proton beam intensity in p/s.
+IRRPROFI       $IRRT     $RATE
+DCYTIMES           0      3600      7200     10800     14400     18000
+DCYTIMES       21600     25200     28800     32400     36000     39600
+DCYTIMES       43200     46800     50400     54000     57600     61200
+DCYTIMES       64800     68400     72000     75600     79200     82800
+DCYTIMES       86400    172800    259200    345600    432000    518400
+DCYTIMES      604800    691200    777600    864000
+RANDOMIZ           1     $SEED
+* Six material-region inventories; Al front/side/back combined as ALCASE.
+RESNUCLE           3       -21                        ALCASE         1Y0
+RESNUCLE           3       -21                           WAT         1Y2
+RESNUCLE           3       -21                         TAWIN         1Y3
+RESNUCLE           3       -21                        CUBACK         1Y5
+RESNUCLE           3       -21                          COOL         1Y6
+RESNUCLE           3       -21                           TGT         1Y4
+USRBIN            12   NEUTRON       -26       TGT                    PRN
+USRBIN        ALCASE                             1                     &
+USRBIN            12    PHOTON       -26       TGT                    PRP
+USRBIN        ALCASE                             1                     &
+USRBIN            12    ENERGY       -28       TGT                    EDEP
+USRBIN        ALCASE                             1                     &
+RESNUCLE           3       -22                        ALCASE         1D001R0
+RESNUCLE           3       -22                           WAT         1D001R2
+RESNUCLE           3       -22                         TAWIN         1D001R3
+RESNUCLE           3       -22                        CUBACK         1D001R5
+RESNUCLE           3       -22                          COOL         1D001R6
+RESNUCLE           3       -22                           TGT         1D001R4
+DCYSCORE           1                        D001R0    D001R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D001ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1                       D001ACT   D001ACT         1USRBIN
+USRBIN            12    PHOTON       -27       TGT                    D001P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           1                         D001P     D001P         1USRBIN
+RESNUCLE           3       -22                        ALCASE         1D002R0
+RESNUCLE           3       -22                           WAT         1D002R2
+RESNUCLE           3       -22                         TAWIN         1D002R3
+RESNUCLE           3       -22                        CUBACK         1D002R5
+RESNUCLE           3       -22                          COOL         1D002R6
+RESNUCLE           3       -22                           TGT         1D002R4
+DCYSCORE           2                        D002R0    D002R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D002ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2                       D002ACT   D002ACT         1USRBIN
+USRBIN            12    PHOTON       -27       TGT                    D002P
+USRBIN        ALCASE                             1                     &
+DCYSCORE           2                         D002P     D002P         1USRBIN
+RESNUCLE           3       -22                        ALCASE         1D003R0
+RESNUCLE           3       -22                           WAT         1D003R2
+RESNUCLE           3       -22                         TAWIN         1D003R3
+RESNUCLE           3       -22                        CUBACK         1D003R5
+RESNUCLE           3       -22                          COOL         1D003R6
+RESNUCLE           3       -22                           TGT         1D003R4
+DCYSCORE          25                        D003R0    D003R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D003ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE          25                       D003ACT   D003ACT         1USRBIN
+USRBIN            12    PHOTON       -27       TGT                    D003P
+USRBIN        ALCASE                             1                     &
+DCYSCORE          25                         D003P     D003P         1USRBIN
+RESNUCLE           3       -22                        ALCASE         1D004R0
+RESNUCLE           3       -22                           WAT         1D004R2
+RESNUCLE           3       -22                         TAWIN         1D004R3
+RESNUCLE           3       -22                        CUBACK         1D004R5
+RESNUCLE           3       -22                          COOL         1D004R6
+RESNUCLE           3       -22                           TGT         1D004R4
+DCYSCORE          31                        D004R0    D004R4         1RESNUCLE
+USRBIN             2  ACTIVITY       -23       TGT                    D004ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE          31                       D004ACT   D004ACT         1USRBIN
+USRBIN            12    PHOTON       -27       TGT                    D004P
+USRBIN        ALCASE                             1                     &
+DCYSCORE          31                         D004P     D004P         1USRBIN
+#if PENETR
+USRBIN            12    PROTON       -29       TGT                    PREG
+USRBIN        ALCASE                             1                     &
+USRBIN            11    PROTON       -29         1         0     0.255PTGTRZ
+USRBIN             0         0     0.155        50         1       100 &
+#endif
+#if XYZMAP
+USRBIN            10    PROTON       -30    $XYMAX    $XYMAX     $ZMAXPXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+USRBIN            10   NEUTRON       -30    $XYMAX    $XYMAX     $ZMAXNXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+USRBIN            10    PHOTON       -30    $XYMAX    $XYMAX     $ZMAXGXYZ
+USRBIN       -$XYMAX   -$XYMAX     $ZMIN      $NXY      $NXY       $NZ &
+#endif
+RESNUCLE           3       -22                        ALCASE         1G003R0
+RESNUCLE           3       -22                           WAT         1G003R2
+RESNUCLE           3       -22                         TAWIN         1G003R3
+RESNUCLE           3       -22                        CUBACK         1G003R5
+RESNUCLE           3       -22                          COOL         1G003R6
+RESNUCLE           3       -22                           TGT         1G003R4
+DCYSCORE           3                        G003R0    G003R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G004R0
+RESNUCLE           3       -22                           WAT         1G004R2
+RESNUCLE           3       -22                         TAWIN         1G004R3
+RESNUCLE           3       -22                        CUBACK         1G004R5
+RESNUCLE           3       -22                          COOL         1G004R6
+RESNUCLE           3       -22                           TGT         1G004R4
+DCYSCORE           4                        G004R0    G004R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G005R0
+RESNUCLE           3       -22                           WAT         1G005R2
+RESNUCLE           3       -22                         TAWIN         1G005R3
+RESNUCLE           3       -22                        CUBACK         1G005R5
+RESNUCLE           3       -22                          COOL         1G005R6
+RESNUCLE           3       -22                           TGT         1G005R4
+DCYSCORE           5                        G005R0    G005R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G006R0
+RESNUCLE           3       -22                           WAT         1G006R2
+RESNUCLE           3       -22                         TAWIN         1G006R3
+RESNUCLE           3       -22                        CUBACK         1G006R5
+RESNUCLE           3       -22                          COOL         1G006R6
+RESNUCLE           3       -22                           TGT         1G006R4
+DCYSCORE           6                        G006R0    G006R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G007R0
+RESNUCLE           3       -22                           WAT         1G007R2
+RESNUCLE           3       -22                         TAWIN         1G007R3
+RESNUCLE           3       -22                        CUBACK         1G007R5
+RESNUCLE           3       -22                          COOL         1G007R6
+RESNUCLE           3       -22                           TGT         1G007R4
+DCYSCORE           7                        G007R0    G007R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G008R0
+RESNUCLE           3       -22                           WAT         1G008R2
+RESNUCLE           3       -22                         TAWIN         1G008R3
+RESNUCLE           3       -22                        CUBACK         1G008R5
+RESNUCLE           3       -22                          COOL         1G008R6
+RESNUCLE           3       -22                           TGT         1G008R4
+DCYSCORE           8                        G008R0    G008R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G009R0
+RESNUCLE           3       -22                           WAT         1G009R2
+RESNUCLE           3       -22                         TAWIN         1G009R3
+RESNUCLE           3       -22                        CUBACK         1G009R5
+RESNUCLE           3       -22                          COOL         1G009R6
+RESNUCLE           3       -22                           TGT         1G009R4
+DCYSCORE           9                        G009R0    G009R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G010R0
+RESNUCLE           3       -22                           WAT         1G010R2
+RESNUCLE           3       -22                         TAWIN         1G010R3
+RESNUCLE           3       -22                        CUBACK         1G010R5
+RESNUCLE           3       -22                          COOL         1G010R6
+RESNUCLE           3       -22                           TGT         1G010R4
+DCYSCORE          10                        G010R0    G010R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G011R0
+RESNUCLE           3       -22                           WAT         1G011R2
+RESNUCLE           3       -22                         TAWIN         1G011R3
+RESNUCLE           3       -22                        CUBACK         1G011R5
+RESNUCLE           3       -22                          COOL         1G011R6
+RESNUCLE           3       -22                           TGT         1G011R4
+DCYSCORE          11                        G011R0    G011R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G012R0
+RESNUCLE           3       -22                           WAT         1G012R2
+RESNUCLE           3       -22                         TAWIN         1G012R3
+RESNUCLE           3       -22                        CUBACK         1G012R5
+RESNUCLE           3       -22                          COOL         1G012R6
+RESNUCLE           3       -22                           TGT         1G012R4
+DCYSCORE          12                        G012R0    G012R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G013R0
+RESNUCLE           3       -22                           WAT         1G013R2
+RESNUCLE           3       -22                         TAWIN         1G013R3
+RESNUCLE           3       -22                        CUBACK         1G013R5
+RESNUCLE           3       -22                          COOL         1G013R6
+RESNUCLE           3       -22                           TGT         1G013R4
+DCYSCORE          13                        G013R0    G013R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G014R0
+RESNUCLE           3       -22                           WAT         1G014R2
+RESNUCLE           3       -22                         TAWIN         1G014R3
+RESNUCLE           3       -22                        CUBACK         1G014R5
+RESNUCLE           3       -22                          COOL         1G014R6
+RESNUCLE           3       -22                           TGT         1G014R4
+DCYSCORE          14                        G014R0    G014R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G015R0
+RESNUCLE           3       -22                           WAT         1G015R2
+RESNUCLE           3       -22                         TAWIN         1G015R3
+RESNUCLE           3       -22                        CUBACK         1G015R5
+RESNUCLE           3       -22                          COOL         1G015R6
+RESNUCLE           3       -22                           TGT         1G015R4
+DCYSCORE          15                        G015R0    G015R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G016R0
+RESNUCLE           3       -22                           WAT         1G016R2
+RESNUCLE           3       -22                         TAWIN         1G016R3
+RESNUCLE           3       -22                        CUBACK         1G016R5
+RESNUCLE           3       -22                          COOL         1G016R6
+RESNUCLE           3       -22                           TGT         1G016R4
+DCYSCORE          16                        G016R0    G016R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G017R0
+RESNUCLE           3       -22                           WAT         1G017R2
+RESNUCLE           3       -22                         TAWIN         1G017R3
+RESNUCLE           3       -22                        CUBACK         1G017R5
+RESNUCLE           3       -22                          COOL         1G017R6
+RESNUCLE           3       -22                           TGT         1G017R4
+DCYSCORE          17                        G017R0    G017R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G018R0
+RESNUCLE           3       -22                           WAT         1G018R2
+RESNUCLE           3       -22                         TAWIN         1G018R3
+RESNUCLE           3       -22                        CUBACK         1G018R5
+RESNUCLE           3       -22                          COOL         1G018R6
+RESNUCLE           3       -22                           TGT         1G018R4
+DCYSCORE          18                        G018R0    G018R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G019R0
+RESNUCLE           3       -22                           WAT         1G019R2
+RESNUCLE           3       -22                         TAWIN         1G019R3
+RESNUCLE           3       -22                        CUBACK         1G019R5
+RESNUCLE           3       -22                          COOL         1G019R6
+RESNUCLE           3       -22                           TGT         1G019R4
+DCYSCORE          19                        G019R0    G019R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G020R0
+RESNUCLE           3       -22                           WAT         1G020R2
+RESNUCLE           3       -22                         TAWIN         1G020R3
+RESNUCLE           3       -22                        CUBACK         1G020R5
+RESNUCLE           3       -22                          COOL         1G020R6
+RESNUCLE           3       -22                           TGT         1G020R4
+DCYSCORE          20                        G020R0    G020R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G021R0
+RESNUCLE           3       -22                           WAT         1G021R2
+RESNUCLE           3       -22                         TAWIN         1G021R3
+RESNUCLE           3       -22                        CUBACK         1G021R5
+RESNUCLE           3       -22                          COOL         1G021R6
+RESNUCLE           3       -22                           TGT         1G021R4
+DCYSCORE          21                        G021R0    G021R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G022R0
+RESNUCLE           3       -22                           WAT         1G022R2
+RESNUCLE           3       -22                         TAWIN         1G022R3
+RESNUCLE           3       -22                        CUBACK         1G022R5
+RESNUCLE           3       -22                          COOL         1G022R6
+RESNUCLE           3       -22                           TGT         1G022R4
+DCYSCORE          22                        G022R0    G022R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G023R0
+RESNUCLE           3       -22                           WAT         1G023R2
+RESNUCLE           3       -22                         TAWIN         1G023R3
+RESNUCLE           3       -22                        CUBACK         1G023R5
+RESNUCLE           3       -22                          COOL         1G023R6
+RESNUCLE           3       -22                           TGT         1G023R4
+DCYSCORE          23                        G023R0    G023R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G024R0
+RESNUCLE           3       -22                           WAT         1G024R2
+RESNUCLE           3       -22                         TAWIN         1G024R3
+RESNUCLE           3       -22                        CUBACK         1G024R5
+RESNUCLE           3       -22                          COOL         1G024R6
+RESNUCLE           3       -22                           TGT         1G024R4
+DCYSCORE          24                        G024R0    G024R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G026R0
+RESNUCLE           3       -22                           WAT         1G026R2
+RESNUCLE           3       -22                         TAWIN         1G026R3
+RESNUCLE           3       -22                        CUBACK         1G026R5
+RESNUCLE           3       -22                          COOL         1G026R6
+RESNUCLE           3       -22                           TGT         1G026R4
+DCYSCORE          26                        G026R0    G026R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G027R0
+RESNUCLE           3       -22                           WAT         1G027R2
+RESNUCLE           3       -22                         TAWIN         1G027R3
+RESNUCLE           3       -22                        CUBACK         1G027R5
+RESNUCLE           3       -22                          COOL         1G027R6
+RESNUCLE           3       -22                           TGT         1G027R4
+DCYSCORE          27                        G027R0    G027R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G028R0
+RESNUCLE           3       -22                           WAT         1G028R2
+RESNUCLE           3       -22                         TAWIN         1G028R3
+RESNUCLE           3       -22                        CUBACK         1G028R5
+RESNUCLE           3       -22                          COOL         1G028R6
+RESNUCLE           3       -22                           TGT         1G028R4
+DCYSCORE          28                        G028R0    G028R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G029R0
+RESNUCLE           3       -22                           WAT         1G029R2
+RESNUCLE           3       -22                         TAWIN         1G029R3
+RESNUCLE           3       -22                        CUBACK         1G029R5
+RESNUCLE           3       -22                          COOL         1G029R6
+RESNUCLE           3       -22                           TGT         1G029R4
+DCYSCORE          29                        G029R0    G029R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G030R0
+RESNUCLE           3       -22                           WAT         1G030R2
+RESNUCLE           3       -22                         TAWIN         1G030R3
+RESNUCLE           3       -22                        CUBACK         1G030R5
+RESNUCLE           3       -22                          COOL         1G030R6
+RESNUCLE           3       -22                           TGT         1G030R4
+DCYSCORE          30                        G030R0    G030R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G032R0
+RESNUCLE           3       -22                           WAT         1G032R2
+RESNUCLE           3       -22                         TAWIN         1G032R3
+RESNUCLE           3       -22                        CUBACK         1G032R5
+RESNUCLE           3       -22                          COOL         1G032R6
+RESNUCLE           3       -22                           TGT         1G032R4
+DCYSCORE          32                        G032R0    G032R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G033R0
+RESNUCLE           3       -22                           WAT         1G033R2
+RESNUCLE           3       -22                         TAWIN         1G033R3
+RESNUCLE           3       -22                        CUBACK         1G033R5
+RESNUCLE           3       -22                          COOL         1G033R6
+RESNUCLE           3       -22                           TGT         1G033R4
+DCYSCORE          33                        G033R0    G033R4         1RESNUCLE
+RESNUCLE           3       -22                        ALCASE         1G034R0
+RESNUCLE           3       -22                           WAT         1G034R2
+RESNUCLE           3       -22                         TAWIN         1G034R3
+RESNUCLE           3       -22                        CUBACK         1G034R5
+RESNUCLE           3       -22                          COOL         1G034R6
+RESNUCLE           3       -22                           TGT         1G034R4
+DCYSCORE          34                        G034R0    G034R4         1RESNUCLE
+* Prompt currents leaving the full Al envelope; area divisor 1.
+USRBDX            -1   NEUTRON       -24    ALCASE    VACREG         1PRNTOT
+USRBDX          0.05     1E-14       6006.28318531         0         1 &
+USRBDX            -1    PROTON       -24    ALCASE    VACREG         1PRPTOT
+USRBDX          0.04     1E-08       6006.28318531         0         1 &
+USRBDX            -1    PHOTON       -24    ALCASE    VACREG         1PRGTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+* One-way proton currents; area divisor 1: integrated over each face.
+* PIN: Ta -> target; POUT: target -> Cu (rear face only).
+* PSIDE: target -> Al wall; PBACK: target -> Ta backscatter.
+USRBDX             1    PROTON       -31     TAWIN       TGT         1PIN
+USRBDX         $EMAX         0    $NEBIN6.28318531         0         1 &
+USRBDX             1    PROTON       -31       TGT    CUBACK         1POUT
+USRBDX         $EMAX         0    $NEBIN6.28318531         0         1 &
+USRBDX             1    PROTON       -31       TGT    ALCASE         1PSIDE
+USRBDX         $EMAX         0    $NEBIN6.28318531         0         1 &
+USRBDX             1    PROTON       -31       TGT     TAWIN         1PBACK
+USRBDX         $EMAX         0    $NEBIN6.28318531         0         1 &
+* Forward spectra: 0.98 <= cos(theta_z) <= 1 at planar target faces.
+* Cone solid angle = 2*pi*(1-0.98) sr; retain full-angle scores above.
+USRBDX             1    PROTON       -31     TAWIN       TGT         1PINFWD
+USRBDX         $EMAX         0    $NEBIN0.12566371         0         1 &
+USRBDX             1    PROTON       -31       TGT    CUBACK         1POUTFWD
+USRBDX         $EMAX         0    $NEBIN0.12566371         0         1 &
+* Delayed photons ALCASE -> VACREG: full external housing surface.
+* L and B spectral grids overlap; never sum them.
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G001LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           1                      G001LTOT  G001LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G001BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           1                      G001BTOT  G001BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G002LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           2                      G002LTOT  G002LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G002BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           2                      G002BTOT  G002BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G003LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           3                      G003LTOT  G003LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G003BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           3                      G003BTOT  G003BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G004LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           4                      G004LTOT  G004LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G004BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           4                      G004BTOT  G004BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G005LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           5                      G005LTOT  G005LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G005BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           5                      G005BTOT  G005BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G006LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           6                      G006LTOT  G006LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G006BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           6                      G006BTOT  G006BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G007LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           7                      G007LTOT  G007LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G007BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           7                      G007BTOT  G007BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G008LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           8                      G008LTOT  G008LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G008BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           8                      G008BTOT  G008BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G009LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE           9                      G009LTOT  G009LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G009BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE           9                      G009BTOT  G009BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G010LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          10                      G010LTOT  G010LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G010BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          10                      G010BTOT  G010BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G011LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          11                      G011LTOT  G011LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G011BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          11                      G011BTOT  G011BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G012LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          12                      G012LTOT  G012LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G012BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          12                      G012BTOT  G012BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G013LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          13                      G013LTOT  G013LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G013BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          13                      G013BTOT  G013BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G014LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          14                      G014LTOT  G014LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G014BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          14                      G014BTOT  G014BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G015LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          15                      G015LTOT  G015LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G015BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          15                      G015BTOT  G015BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G016LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          16                      G016LTOT  G016LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G016BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          16                      G016BTOT  G016BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G017LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          17                      G017LTOT  G017LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G017BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          17                      G017BTOT  G017BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G018LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          18                      G018LTOT  G018LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G018BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          18                      G018BTOT  G018BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G019LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          19                      G019LTOT  G019LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G019BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          19                      G019BTOT  G019BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G020LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          20                      G020LTOT  G020LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G020BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          20                      G020BTOT  G020BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G021LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          21                      G021LTOT  G021LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G021BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          21                      G021BTOT  G021BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G022LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          22                      G022LTOT  G022LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G022BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          22                      G022BTOT  G022BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G023LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          23                      G023LTOT  G023LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G023BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          23                      G023BTOT  G023BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G024LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          24                      G024LTOT  G024LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G024BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          24                      G024BTOT  G024BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G025LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          25                      G025LTOT  G025LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G025BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          25                      G025BTOT  G025BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G026LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          26                      G026LTOT  G026LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G026BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          26                      G026BTOT  G026BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G027LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          27                      G027LTOT  G027LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G027BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          27                      G027BTOT  G027BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G028LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          28                      G028LTOT  G028LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G028BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          28                      G028BTOT  G028BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G029LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          29                      G029LTOT  G029LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G029BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          29                      G029BTOT  G029BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G030LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          30                      G030LTOT  G030LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G030BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          30                      G030BTOT  G030BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G031LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          31                      G031LTOT  G031LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G031BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          31                      G031BTOT  G031BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G032LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          32                      G032LTOT  G032LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G032BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          32                      G032BTOT  G032BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G033LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          33                      G033LTOT  G033LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G033BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          33                      G033BTOT  G033BTOT         1USRBDX
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1G034LTOT
+USRBDX      0.003001     1E-06      30006.28318531         0         1 &
+DCYSCORE          34                      G034LTOT  G034LTOT         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1G034BTOT
+USRBDX          0.03     1E-06       6006.28318531         0         1 &
+DCYSCORE          34                      G034BTOT  G034BTOT         1USRBDX
+START         $NHIST
+STOP
