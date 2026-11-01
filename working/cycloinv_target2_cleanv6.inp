@@ -63,6 +63,7 @@ TAWIN        5 +inner -watend +taend
 CUBACK       5 +inner -tgtend +cuend
 COOL         5 +inner -cuend
 TGT          5 +inner -taend +tgtend
+REG1         5 
 END
 GEOEND
 * Elemental materials for Al6061 alloy.
@@ -93,6 +94,7 @@ ASSIGNMA    TANTALUM     TAWIN
 ASSIGNMA       CUMIX    CUBACK
 ASSIGNMA       WATER      COOL
 ASSIGNMA       RACL2       TGT
+ASSIGNMA      VACUUM      REG1
 * Inventory physics retained; explicit pointwise library selection.
 PHYSICS            3                                                  EVAPORAT
 PHYSICS            1                                                  COALESCE
