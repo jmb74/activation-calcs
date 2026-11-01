@@ -1,0 +1,114 @@
+*16 MeV proton
+*FLUKA 4-5.2
+*Activation of RaCl2 target
+*Version: 0.1
+TITLE
+RaCl2 Cyclotron Activation Study
+DEFAULTS                                                              PRECISIO
+BEAM          -0.016                             0         0          PROTON
+BEAMPOS          0.0       0.0      -1.0
+* Beam along +z, target front face z=0.
+GEOBEGIN                                                              COMBNAME
+    0    0          Target in Vacuum
+SPH bnyd       0 0 0 100
+SPH world      0 0 0 10.0
+RCC inner      0.0 0.0 0.0 0.0 0.0 0.32299 1
+RCC outer      0 0 0 0 0 0.48174 1.15875
+XYP layer1     0.005
+XYP layer2     0.305
+XYP layer3     0.31
+END
+BLKHOLE      5 +bnyd -world
+VACREG       5 +world -outer
+ALCASE       5 +outer -inner
+HAV1         5 +inner +layer1
+WAT          5 +inner -layer1 +layer2
+HAV2         5 +inner -layer2 +layer3
+TGT          5 +inner -layer3
+END
+GEOEND
+* Havar alloy - density 8.30 g/cm3
+* Define additional elemental materials
+MATERIAL        27.0                8.90                              COBALT
+MATERIAL        24.0                7.19                              CHROMIUM
+MATERIAL        42.0               10.22                              MOLYBDEN
+MATERIAL        25.0                7.21                              MANGANES
+* Define Havar alloy
+MATERIAL                            8.30                              HAVAR
+* Composition by mass fraction
+COMPOUND     -0.4200    COBALT   -0.1950  CHROMIUM   -0.1270    NICKELHAVAR
+COMPOUND     -0.0270  TUNGSTEN   -0.0220  MOLYBDEN   -0.0160  MANGANESHAVAR
+COMPOUND     -0.0020    CARBON   -0.0005  BERYLLIU   -0.1905      IRONHAVAR
+* RaCl2 - density 4.9 g/cm3
+* Radium-226 and natural chlorine
+MATERIAL        88.0                5.50                         226.0RADIUM
+MATERIAL        17.0           2.9947E-3                              CHLORINE
+MATERIAL                            4.90                              RACL2
+* Stoichiometric composition: 1 Ra + 2 Cl
+COMPOUND         1.0    RADIUM       2.0  CHLORINE                    RACL2
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM    VACREG
+ASSIGNMA    ALUMINUM    ALCASE
+ASSIGNMA       HAVAR      HAV1
+ASSIGNMA       WATER       WAT
+ASSIGNMA       HAVAR      HAV2
+ASSIGNMA       RACL2       TGT
+* More complete residual-nucleus evaporation modeling.
+PHYSICS          3.0                                                  EVAPORAT
+PHYSICS          1.0                                                  COALESCE
+* Enable photonuclear reactions for all defined materials.
+PHOTONUC         1.0                      HYDROGEN  @LASTMAT       1.0
+* 40 microA = 2.4966E14 protons/s; irradiation = 7 days.
+RADDECAY         1.0
+!@what.1=7*24*3600
+!@what.2=6.2415E12*40
+IRRPROFI      604800 2.4966E14
+* Indices: 1=EoI, 2=1h, 3=1d, 4=7d after irradiation.
+DCYTIMES         0.0    3600.0   86400.0  604800.0
+* RESNUCLE 3=all, 1=non-low-neutron, 2=low-neutron products.
+* 1.0 normalization = whole region, not per cm3.
+RESNUCLE         3.0     -21.0                        ALCASE       1.0RESCASE
+RESNUCLE         3.0     -22.0      90.0      70.0       TGT       1.0RESTGT
+RESNUCLE         3.0     -23.0                          HAV1       1.0RESHAV1
+RESNUCLE         3.0     -24.0                           WAT       1.0RESWAT
+RESNUCLE         3.0     -25.0                          HAV2       1.0RESHAV2
+DCYSCORE         1.0                       RESCASE   RESHAV2          RESNUCLE
+RANDOMIZ         1.0
+USRBIN             2  ACTIVITY       -26       TGT                    ACT
+USRBIN        ALCASE                             1                     &
+DCYSCORE         1.0                           ACT                    USRBIN
+USRBIN             2  ACTIVITY       -27       TGT                    ACT1
+USRBIN        ALCASE                             1                     &
+DCYSCORE         2.0                          ACT1                    USRBIN
+USRBIN             2  ACTIVITY       -28       TGT                    ACT2
+USRBIN        ALCASE                             1                     &
+DCYSCORE         3.0                          ACT2                    USRBIN
+USRBIN             2  ACTIVITY       -29       TGT                    ACT3
+USRBIN        ALCASE                             1                     &
+DCYSCORE         4.0                          ACT3                    USRBIN
+USRBDX           109   NEUTRON       -30    ALCASE    VACREG         1OUT1N
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+USRBDX           109    PHOTON       -31    ALCASE    VACREG         1OUT1P
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+DCYSCORE         1.0                         OUT1N     OUT1P          USRBDX
+USRBDX           109   NEUTRON       -32    ALCASE    VACREG         1OUT1N1
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+USRBDX           109    PHOTON       -33    ALCASE    VACREG         1OUT1P1
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+DCYSCORE         2.0                        OUT1N1    OUT1P1          USRBDX
+USRBDX           109   NEUTRON       -34    ALCASE    VACREG         1OUT1N2
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+USRBDX           109    PHOTON       -35    ALCASE    VACREG         1OUT1P2
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+DCYSCORE         3.0                        OUT1N2    OUT1P2          USRBDX
+USRBDX           109   NEUTRON       -36    ALCASE    VACREG         1OUT1N3
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+USRBDX           109    PHOTON       -37    ALCASE    VACREG         1OUT1P3
+USRBDX          0.03   0.00001      50.0  12.56637       0.0      18.0 &
+DCYSCORE         4.0                        OUT1N3    OUT1P3          USRBDX
+* Optional check: prompt protons entering RaCl2 from downstream Havar.
+* One-way current, 0-16 MeV in 90 linear bins; area=1 counts per primary.
+USRBDX           1.0    PROTON     -38.0      HAV2       TGT       1.0PTIN
+USRBDX         0.016       0.0      90.0                           1.0 &
+START        1000000
+STOP

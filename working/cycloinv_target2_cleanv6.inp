@@ -18,7 +18,7 @@
 * Seven days in seconds; 200 microA singly charged protons in particles/s.
 #define IRRT 604800
 #define RATE 1248301814892200
-#define NHIST 1000000
+#define NHIST 5000000
 #define SEED 54227137
 * Energy cutoffs in GeV; electron value below is kinetic energy.
 #define ECUT 0.0001
@@ -27,10 +27,10 @@
 * Neutron library is set literally on LOW-PWXS: JEFF-3.3.
 * Keep this hyphenated name out of #define expression evaluation.
 * Defined switches are ON. Remove or #undef to turn OFF; value 0 is ON.
-#define PHNUC
-#define PENETR
+#define PHNUC 
+#define PENETR 
 * Cartesian fluence maps: cm, bin counts; shared grid for all particles.
-#define XYZMAP
+#define XYZMAP 
 #define XYMAX 1.3
 #define ZMIN -0.02
 #define ZMAX 1.8
