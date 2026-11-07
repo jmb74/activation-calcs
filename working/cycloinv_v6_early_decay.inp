@@ -1,0 +1,347 @@
+* Bounded early-cooling diagnostic; no production input overwritten.
+* Production candidate: v6 conditions confirmed by user 2026-11-01.
+* v6 copy of v5: 24.4 MeV, 200 microA; previous inputs preserved.
+* 1 mm target: 0.200 g Ra226 as RaCl2 plus 0.5100 g graphite.
+* Density derived from fixed masses and pi*(1 cm)^2*(0.1 cm).
+* Recommended executable: /usr/local/fluka/bin/flukadpm; no run performed.
+* Working copy: configure here with the native FLUKA preprocessor.
+* Original cyclotron_activation.inp is preserved. No generator required.
+* Negative BEAM energy is GeV; baseline 24.4 MeV at source.
+#define EBEAM 0.0244
+* Graphite partial density (g carbon/cm3 mixture); fixed Ra/Cl loading.
+#define CRHO 1.6233804195373
+#define RARHO 0.63661977236758
+#define CLRHO 0.19971832681797
+#define RHOM 2.4597185187229
+* Keep RHOM = CRHO + RARHO + CLRHO; case generator updates both.
+* Proton scoring range: raise EMAX above highest requested source energy.
+#define EMAX 0.0245
+#define NEBIN 1200
+* Seven days in seconds; 200 microA singly charged protons in particles/s.
+#define IRRT 604800
+#define RATE 1248301814892200
+#define NHIST 200000
+#define SEED 54238137
+* Energy cutoffs in GeV; electron value below is kinetic energy.
+#define ECUT 0.0001
+#define GCUT 1E-06
+#define NTEMP 296
+* Neutron library is set literally on LOW-PWXS: JEFF-3.3.
+* Keep this hyphenated name out of #define expression evaluation.
+* Defined switches are ON. Remove or #undef to turn OFF; value 0 is ON.
+#define PHNUC
+#define PENETR
+* Cartesian fluence maps: cm, bin counts; shared grid for all particles.
+#define XYZMAP
+#define XYMAX 1.3
+#define ZMIN -0.02
+#define ZMAX 1.8
+#define NXY 51
+#define NZ 260
+TITLE
+Target2 v6: 24.4 MeV, 200 microA, 1 mm target, 0.5100 g graphite
+DEFAULTS                                                              PRECISIO
+* Current beam retained: Gaussian x/y FWHM 1.6 cm; no divergence.
+BEAM         -$EBEAM       0.0       0.0      -1.6      -1.6       1.0PROTON
+BEAMPOS          0.0       0.0      -5.0
+* Supplied MCNP x axis mapped to FLUKA +z; target front z=0.155 cm.
+GEOBEGIN                                                              COMBNAME
+    0    0          Enclosed target: one Al housing, one exterior vacuum
+SPH world      0 0 0.255 10
+SPH det100     0 0 0.205 100
+SPH far        0 0 0.205 110
+XYP dp01       98.6857753012
+XYP dp02       94.1742620786
+XYP dp03       86.8075403784
+XYP dp04       76.8094443119
+XYP dp05       64.4837609687
+XYP dp06       50.205
+XYP dp07       34.4070143326
+XYP dp08       17.5698177667
+XYP dp09       0.205
+XYP dp10       -17.1598177667
+XYP dp11       -33.9970143326
+XYP dp12       -49.795
+XYP dp13       -64.0737609687
+XYP dp14       -76.3994443119
+XYP dp15       -86.3975403784
+XYP dp16       -93.7642620786
+XYP dp17       -98.2757753012
+* Housing outer envelope; inner cavity starts behind 0.5 mm Al front.
+RCC outer      0 0 0 0 0 1.655 1.2
+RCC inner      0 0 0.05 0 0 1.405 1
+* Only four internal interfaces; cavity RCC defines its two ends.
+XYP watend     0.15
+XYP taend      0.155
+XYP tgtend     0.255
+XYP cuend      0.455
+END
+BLKHOLE      5 -far
+VACREG       5 +world -outer
+ALCASE       5 +outer -inner
+WAT          5 +inner +watend
+TAWIN        5 +inner -watend +taend
+CUBACK       5 +inner -tgtend +cuend
+COOL         5 +inner -cuend
+TGT          5 +inner -taend +tgtend
+DET01        5 +det100 -world -dp01
+DET02        5 +det100 -world +dp01 -dp02
+DET03        5 +det100 -world +dp02 -dp03
+DET04        5 +det100 -world +dp03 -dp04
+DET05        5 +det100 -world +dp04 -dp05
+DET06        5 +det100 -world +dp05 -dp06
+DET07        5 +det100 -world +dp06 -dp07
+DET08        5 +det100 -world +dp07 -dp08
+DET09        5 +det100 -world +dp08 -dp09
+DET10        5 +det100 -world +dp09 -dp10
+DET11        5 +det100 -world +dp10 -dp11
+DET12        5 +det100 -world +dp11 -dp12
+DET13        5 +det100 -world +dp12 -dp13
+DET14        5 +det100 -world +dp13 -dp14
+DET15        5 +det100 -world +dp14 -dp15
+DET16        5 +det100 -world +dp15 -dp16
+DET17        5 +det100 -world +dp16 -dp17
+DET18        5 +det100 -world +dp17
+OUTDET       5 +far -det100
+END
+GEOEND
+* Elemental materials for Al6061 alloy.
+MATERIAL          24                7.19                              CHROMIUM
+MATERIAL          25                7.21                              MANGANES
+* Al 6061: supplied MCNP M1 mass proportions, density 2.7 g/cm3.
+MATERIAL          30               7.133                              ZINC
+MATERIAL                             2.7                              AL6061
+COMPOUND       -0.01  MAGNESIU    -0.972  ALUMINUM    -0.006   SILICONAL6061
+COMPOUND   -0.000876  TITANIUM  -0.00195  CHROMIUM -0.000876  MANGANESAL6061
+COMPOUND   -0.004088      IRON  -0.00275    COPPER  -0.00146      ZINCAL6061
+* v3: exact 0.200 g Ra226; Cl from RaCl2 stoichiometry (226,35.45).
+* Graphite mass 0.5100 g; homogeneous anhydrous mixture.
+MATERIAL          88                 5.5                           226RADIUM
+MATERIAL          17           0.0029947                              CHLORINE
+MATERIAL          73              16.654                           181TANTALUM
+MATERIAL          29                8.96                            63CU63
+MATERIAL          29                8.96                            65CU65
+MATERIAL                            8.96                              CUMIX
+COMPOUND      0.6917      CU63    0.3083      CU65                    CUMIX
+MATERIAL                           $RHOM                              RACL2
+COMPOUND     -$RARHO    RADIUM    -$CRHO    CARBON   -$CLRHO  CHLORINERACL2
+ASSIGNMA    BLCKHOLE   BLKHOLE
+ASSIGNMA      VACUUM    VACREG
+ASSIGNMA      AL6061    ALCASE
+ASSIGNMA       WATER       WAT
+ASSIGNMA    TANTALUM     TAWIN
+ASSIGNMA       CUMIX    CUBACK
+ASSIGNMA       WATER      COOL
+ASSIGNMA       RACL2       TGT
+ASSIGNMA      VACUUM     DET01    OUTDET         1
+* Inventory physics retained; explicit pointwise library selection.
+PHYSICS            3                                                  EVAPORAT
+PHYSICS            1                                                  COALESCE
+LOW-PWXS                          $NTEMP                              JEFF-3.3
+* 1 keV photons by default; 100 keV electron kinetic cutoff.
+EMFCUT        -$ECUT     $GCUT              VACREG       TGT
+EMFCUT        -$ECUT     $GCUT               DET01    OUTDET
+EMFCUT        -$ECUT     $GCUT         1  HYDROGEN     RACL2          PROD-CUT
+#if PHNUC
+PHOTONUC           1                      HYDROGEN     RACL2
+#endif
+RADDECAY           1         1         3
+* Durations in seconds; singly charged proton beam intensity in p/s.
+IRRPROFI       $IRRT     $RATE
+* Diagnostic scores: early cooling; production source/physics/geometry retained.
+DCYTIMES           0     0.001      0.01       0.1         1         2
+DCYTIMES           4         8        16        30        60       120
+DCYTIMES         600      3600                                        
+RANDOMIZ           1     $SEED                                        
+RESNUCLE           3       -21                        ALCASE         1Y0
+RESNUCLE           3       -21                           WAT         1Y1
+RESNUCLE           3       -21                         TAWIN         1Y2
+RESNUCLE           3       -21                        CUBACK         1Y3
+RESNUCLE           3       -21                          COOL         1Y4
+RESNUCLE           3       -21                           TGT         1Y5
+USRBDX             1    PHOTON       -24    ALCASE    VACREG         1PFINE
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+RESNUCLE           3       -22                        ALCASE         1E01R0
+RESNUCLE           3       -22                           WAT         1E01R1
+RESNUCLE           3       -22                         TAWIN         1E01R2
+RESNUCLE           3       -22                        CUBACK         1E01R3
+RESNUCLE           3       -22                          COOL         1E01R4
+RESNUCLE           3       -22                           TGT         1E01R5
+DCYSCORE           1                         E01R0     E01R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E01L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           1                          E01L      E01L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E01B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           1                          E01B      E01B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E02R0
+RESNUCLE           3       -22                           WAT         1E02R1
+RESNUCLE           3       -22                         TAWIN         1E02R2
+RESNUCLE           3       -22                        CUBACK         1E02R3
+RESNUCLE           3       -22                          COOL         1E02R4
+RESNUCLE           3       -22                           TGT         1E02R5
+DCYSCORE           2                         E02R0     E02R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E02L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           2                          E02L      E02L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E02B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           2                          E02B      E02B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E03R0
+RESNUCLE           3       -22                           WAT         1E03R1
+RESNUCLE           3       -22                         TAWIN         1E03R2
+RESNUCLE           3       -22                        CUBACK         1E03R3
+RESNUCLE           3       -22                          COOL         1E03R4
+RESNUCLE           3       -22                           TGT         1E03R5
+DCYSCORE           3                         E03R0     E03R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E03L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           3                          E03L      E03L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E03B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           3                          E03B      E03B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E04R0
+RESNUCLE           3       -22                           WAT         1E04R1
+RESNUCLE           3       -22                         TAWIN         1E04R2
+RESNUCLE           3       -22                        CUBACK         1E04R3
+RESNUCLE           3       -22                          COOL         1E04R4
+RESNUCLE           3       -22                           TGT         1E04R5
+DCYSCORE           4                         E04R0     E04R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E04L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           4                          E04L      E04L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E04B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           4                          E04B      E04B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E05R0
+RESNUCLE           3       -22                           WAT         1E05R1
+RESNUCLE           3       -22                         TAWIN         1E05R2
+RESNUCLE           3       -22                        CUBACK         1E05R3
+RESNUCLE           3       -22                          COOL         1E05R4
+RESNUCLE           3       -22                           TGT         1E05R5
+DCYSCORE           5                         E05R0     E05R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E05L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           5                          E05L      E05L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E05B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           5                          E05B      E05B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E06R0
+RESNUCLE           3       -22                           WAT         1E06R1
+RESNUCLE           3       -22                         TAWIN         1E06R2
+RESNUCLE           3       -22                        CUBACK         1E06R3
+RESNUCLE           3       -22                          COOL         1E06R4
+RESNUCLE           3       -22                           TGT         1E06R5
+DCYSCORE           6                         E06R0     E06R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E06L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           6                          E06L      E06L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E06B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           6                          E06B      E06B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E07R0
+RESNUCLE           3       -22                           WAT         1E07R1
+RESNUCLE           3       -22                         TAWIN         1E07R2
+RESNUCLE           3       -22                        CUBACK         1E07R3
+RESNUCLE           3       -22                          COOL         1E07R4
+RESNUCLE           3       -22                           TGT         1E07R5
+DCYSCORE           7                         E07R0     E07R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E07L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           7                          E07L      E07L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E07B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           7                          E07B      E07B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E08R0
+RESNUCLE           3       -22                           WAT         1E08R1
+RESNUCLE           3       -22                         TAWIN         1E08R2
+RESNUCLE           3       -22                        CUBACK         1E08R3
+RESNUCLE           3       -22                          COOL         1E08R4
+RESNUCLE           3       -22                           TGT         1E08R5
+DCYSCORE           8                         E08R0     E08R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E08L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           8                          E08L      E08L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E08B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           8                          E08B      E08B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E09R0
+RESNUCLE           3       -22                           WAT         1E09R1
+RESNUCLE           3       -22                         TAWIN         1E09R2
+RESNUCLE           3       -22                        CUBACK         1E09R3
+RESNUCLE           3       -22                          COOL         1E09R4
+RESNUCLE           3       -22                           TGT         1E09R5
+DCYSCORE           9                         E09R0     E09R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E09L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE           9                          E09L      E09L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E09B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE           9                          E09B      E09B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E10R0
+RESNUCLE           3       -22                           WAT         1E10R1
+RESNUCLE           3       -22                         TAWIN         1E10R2
+RESNUCLE           3       -22                        CUBACK         1E10R3
+RESNUCLE           3       -22                          COOL         1E10R4
+RESNUCLE           3       -22                           TGT         1E10R5
+DCYSCORE          10                         E10R0     E10R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E10L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE          10                          E10L      E10L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E10B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE          10                          E10B      E10B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E11R0
+RESNUCLE           3       -22                           WAT         1E11R1
+RESNUCLE           3       -22                         TAWIN         1E11R2
+RESNUCLE           3       -22                        CUBACK         1E11R3
+RESNUCLE           3       -22                          COOL         1E11R4
+RESNUCLE           3       -22                           TGT         1E11R5
+DCYSCORE          11                         E11R0     E11R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E11L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE          11                          E11L      E11L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E11B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE          11                          E11B      E11B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E12R0
+RESNUCLE           3       -22                           WAT         1E12R1
+RESNUCLE           3       -22                         TAWIN         1E12R2
+RESNUCLE           3       -22                        CUBACK         1E12R3
+RESNUCLE           3       -22                          COOL         1E12R4
+RESNUCLE           3       -22                           TGT         1E12R5
+DCYSCORE          12                         E12R0     E12R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E12L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE          12                          E12L      E12L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E12B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE          12                          E12B      E12B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E13R0
+RESNUCLE           3       -22                           WAT         1E13R1
+RESNUCLE           3       -22                         TAWIN         1E13R2
+RESNUCLE           3       -22                        CUBACK         1E13R3
+RESNUCLE           3       -22                          COOL         1E13R4
+RESNUCLE           3       -22                           TGT         1E13R5
+DCYSCORE          13                         E13R0     E13R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E13L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE          13                          E13L      E13L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E13B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE          13                          E13B      E13B         1USRBDX
+RESNUCLE           3       -22                        ALCASE         1E14R0
+RESNUCLE           3       -22                           WAT         1E14R1
+RESNUCLE           3       -22                         TAWIN         1E14R2
+RESNUCLE           3       -22                        CUBACK         1E14R3
+RESNUCLE           3       -22                          COOL         1E14R4
+RESNUCLE           3       -22                           TGT         1E14R5
+DCYSCORE          14                         E14R0     E14R5         1RESNUCLE
+USRBDX             1    PHOTON       -38    ALCASE    VACREG         1E14L
+USRBDX      0.003001     1e-06      30006.28318531         0         1 &
+DCYSCORE          14                          E14L      E14L         1USRBDX
+USRBDX            -1    PHOTON       -38    ALCASE    VACREG         1E14B
+USRBDX          0.03     1e-06       6006.28318531         0         1 &
+DCYSCORE          14                          E14B      E14B         1USRBDX
+START         $NHIST                                                  
+STOP
